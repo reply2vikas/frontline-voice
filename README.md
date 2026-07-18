@@ -4,6 +4,11 @@
 
 Turn a raw operations alert into calm, credible, correctly-worded action in under five seconds.
 
+**[▶ Live app](https://frontline-voice-751909779915.asia-south1.run.app)** · **[Source](https://github.com/reply2vikas/frontline-voice)**
+
+Runs with no API key required — the deterministic engine answers when no credentials are configured, so you can evaluate the whole product immediately.
+
+
 ---
 
 ## The problem
@@ -103,6 +108,8 @@ authority-boundary violations, prompt-injection redaction, a retrieval hit-rate 
 offline-parity coverage.
 
 ## Deploy (Google Cloud Run)
+
+Live at https://frontline-voice-751909779915.asia-south1.run.app
 
 ```bash
 cd backend
