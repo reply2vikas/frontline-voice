@@ -13,6 +13,8 @@ before instruction whenever the crowd is frustrated or hostile.
 
 from __future__ import annotations
 
+from typing import Literal
+
 from .schemas import Alternative, Announcement, DecisionFacts, GenAIOutput, Register
 
 _OPENERS = {
@@ -68,7 +70,7 @@ _OUT_OF_SCOPE = {
     "fr": "Cette décision relève de l'équipe opérationnelle. Je l'ai transmise. En attendant, je peux vous indiquer {zone}.",
 }
 
-LANGS = ("en", "es", "fr")
+LANGS: tuple[Literal["en", "es", "fr"], ...] = ("en", "es", "fr")
 
 
 def _human(zone_id: str | None) -> str:

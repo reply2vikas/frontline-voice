@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import json
 import time
-from typing import Any
+from typing import Any, Literal
 
 import httpx
 
@@ -106,7 +106,7 @@ def _parse(raw: str) -> GenAIOutput:
 
 def generate(
     facts: DecisionFacts, precedents: list[dict[str, Any]], free_text: str = "", timeout: float = 20.0
-) -> tuple[GenAIOutput, str, str | None, list[str], int]:
+) -> tuple[GenAIOutput, Literal["genai", "offline_template"], str | None, list[str], int]:
     """Returns (output, engine, model, guard_violations, latency_ms).
 
     Never raises: every failure path degrades to the deterministic engine.

@@ -12,3 +12,4 @@ htmlcov/
 /research/
 .DS_Store
 **/.DS_Store
+*.tar.gz

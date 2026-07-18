@@ -9,6 +9,7 @@ test suite in agreement, and lets an evaluator reproduce any screenshot exactly.
 Evaluators who want to drive the product from their own data should post it to
 /api/upload/feed instead; nothing here is used when a real feed is supplied.
 """
+
 from __future__ import annotations
 
 import hashlib

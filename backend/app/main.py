@@ -20,11 +20,11 @@ from starlette.requests import Request
 
 from . import audit
 from .config import settings
-from .simulator import feed_for, venue_state
 from .corpus import load_precedents, load_sops, retrieve
 from .engine import decide
 from .llm import generate
 from .schemas import Citation, DecisionResponse, OpsFeedEvent, VolunteerReport
+from .simulator import feed_for, venue_state
 from .venues import VENUES, get_venue
 
 SECURITY_HEADERS = {
@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI):  # noqa: ARG001 - signature required by FastAP
 
 
 app = FastAPI(
-    title="Frontline Voice",
+    title="Micro-Megaphone",
     version="1.0.0",
     description="Crowd de-escalation copilot for last-mile volunteers, FIFA World Cup 2026.",
     lifespan=lifespan,

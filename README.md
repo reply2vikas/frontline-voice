@@ -106,7 +106,7 @@ offline-parity coverage.
 
 ```bash
 cd backend
-gcloud run deploy micro-megaphone --source . --region asia-south1 --allow-unauthenticated
+gcloud run deploy frontline-voice --source . --region asia-south1 --allow-unauthenticated
 ```
 
 The container runs as a non-root user and writes its audit database to `/tmp`.
