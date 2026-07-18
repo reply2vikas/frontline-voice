@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Frontline Voice — Volunteer Crowd De-escalation Copilot</title>
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/app.js" defer></script>
+</head>
+<body>
+<header>
+  <h1>Frontline Voice
+    <span>Crowd de-escalation copilot for last-mile volunteers · FIFA World Cup 2026</span>
+  </h1>
+</header>
+
+<main>
+  <form id="f">
+    <fieldset>
+      <legend>Venue</legend>
+      <label class="sr" for="venue">Venue</label>
+      <select id="venue" name="venue"></select>
+      <p class="muted" id="feedNote" style="margin:.6rem 0 0"></p>
+    </fieldset>
+
+    <fieldset>
+      <legend>1 · Where are you</legend>
+      <label class="sr" for="zone">Your location</label>
+      <select id="zone" name="zone"></select>
+    </fieldset>
+
+    <fieldset>
+      <legend>2 · What is happening</legend>
+      <div class="taps" role="group" aria-label="Issue" id="issue"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>3 · Crowd mood</legend>
+      <div class="taps" role="group" aria-label="Crowd mood" id="mood"></div>
+    </fieldset>
+
+    <button class="go" id="go" type="submit">Get guidance</button>
+  </form>
+
+  <div id="out" aria-live="polite" aria-busy="false"></div>
+</main>
+
+</body>
+</html>

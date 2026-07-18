@@ -1,0 +1,348 @@
+{
+  "corpus_version": "1.0.0",
+  "generated": "2026-07-18",
+  "purpose": "Grounding corpus for precedent retrieval in the Frontline Voice volunteer copilot. Every entry describes a DOCUMENTED incident or published finding. All narrative text is written in original wording, summarised from the cited public reporting. No entry is invented. Entries carry an evidence_tier so the application can disclose the strength of each citation to the user.",
+  "evidence_tiers": {
+    "official_report": "Finding published in an official or independently commissioned after-action review, government report, or peer-reviewed/attribution study.",
+    "credible_reporting": "Documented by established news organisations reporting on the event, but not drawn from a formal published inquiry."
+  },
+  "authority_boundary": {
+    "volunteer_cannot": ["lock or unlock gates", "direct police", "order evacuation", "add transit capacity", "countermand security decisions", "physically restrain or disperse crowds"],
+    "volunteer_can": ["reduce information asymmetry", "micro-redirect arriving people", "report ground truth upward", "explain and reassure", "guide to accessible, quiet, medical, water or cooling points"],
+    "note": "Every volunteer_action field in this corpus is constrained to the volunteer_can list. Retrieval consumers must never surface an action outside it."
+  },
+  "precedents": [
+    {
+      "id": "PRE-001",
+      "title": "Gate closure during an ingress surge created a crush",
+      "event": "CONMEBOL Copa America 2024 Final, Argentina v Colombia",
+      "venue": "Hard Rock Stadium, Miami Gardens, Florida",
+      "venue_wc2026_name": "Miami Stadium",
+      "date": "2024-07-14",
+      "category": "ingress_surge",
+      "tags": ["gate_closure", "crush", "ticketless", "surge", "delay"],
+      "what_happened": "Very large numbers of people, many without tickets, massed at the entrances and pushed through or climbed over perimeter barriers. When staff responded by closing the entry points, the pressure concentrated and a crush formed in some areas. Kickoff was pushed back by well over an hour, and some ticket holders never got in.",
+      "root_cause": "Entry control was overwhelmed before kickoff, and closing gates outright removed the only pressure-release path for people already compressed against them.",
+      "official_finding": "Later review and litigation identified miscommunication and insufficient security provision as major contributors. Organisers and the venue operator settled a class action brought by affected ticket holders.",
+      "volunteer_relevance": "A volunteer positioned on an approach route cannot open or close a gate, but can intercept people who have not yet joined the crush and route them to a less loaded entrance, and can explain why a hold is happening so that arriving groups do not push forward into it.",
+      "authority_boundary_note": "Never advise a volunteer to move people toward, past, or against a closed gate or a security line. The only safe volunteer action is upstream diversion and explanation.",
+      "wc2026_link": {
+        "venues": ["Miami Stadium (Hard Rock Stadium)"],
+        "why": "This is the same physical venue hosting 2026 matches, so the ingress geometry and the lessons transfer directly."
+      },
+      "retrieval_triggers": {
+        "status": ["CLOSED", "HOLD", "SURGE"],
+        "crowd_mood": ["frustrated", "hostile", "pressing"],
+        "phase": ["pre_kickoff"]
+      },
+      "evidence_tier": "official_report",
+      "sources": [
+        {"publisher": "ESPN", "url": "https://www.espn.com/soccer/story/_/id/44717633/copa-america-final-fan-chaos-security-miami-argentina-colombia"},
+        {"publisher": "Axios Miami", "url": "https://www.axios.com/local/miami/2025/06/04/world-cup-hard-rock-security-copa-america"},
+        {"publisher": "ESPN", "url": "https://global.espn.com/football/story/_/id/47040773/copa-america-organizers-settle-14m-final-debacle"}
+      ]
+    },
+    {
+      "id": "PRE-002",
+      "title": "Perimeter set too close to the stadium let unticketed crowds mass",
+      "event": "CONMEBOL Copa America 2024 Final",
+      "venue": "Hard Rock Stadium, Miami Gardens, Florida",
+      "date": "2024-07-14",
+      "category": "perimeter_control",
+      "tags": ["perimeter", "checkpoint", "parking", "access_control"],
+      "what_happened": "People without tickets were able to reach the stadium campus and parking areas before the match, because there was no outer screening layer holding them further back. That allowed a very large crowd to assemble directly against the entrances.",
+      "root_cause": "The security perimeter began at the building rather than at the edge of the campus, so there was no earlier point at which unticketed arrivals could be filtered out.",
+      "official_finding": "The police after-action review recommended that the venue extend its security perimeter and operate external checkpoints for high-profile events. The venue subsequently introduced multiple outer checkpoints.",
+      "volunteer_relevance": "Volunteers working the outer approaches are the first human contact for arrivals. Clear, early, multilingual explanation of where ticket checks happen keeps ticket holders moving to the right line and reduces the number of people who drift toward the wrong entrance.",
+      "authority_boundary_note": "Volunteers do not screen tickets or refuse entry. They inform and direct only.",
+      "wc2026_link": {
+        "venues": ["Miami Stadium (Hard Rock Stadium)"],
+        "why": "The 2026 operation at this venue runs a multi-checkpoint outer perimeter that arrivals will not be expecting, which increases the need for early explanation."
+      },
+      "retrieval_triggers": {
+        "status": ["OPEN", "SURGE", "CHECKPOINT_QUEUE"],
+        "crowd_mood": ["confused", "frustrated"],
+        "phase": ["pre_kickoff"]
+      },
+      "evidence_tier": "official_report",
+      "sources": [
+        {"publisher": "Axios Miami", "url": "https://www.axios.com/local/miami/2025/06/04/world-cup-hard-rock-security-copa-america"}
+      ]
+    },
+    {
+      "id": "PRE-003",
+      "title": "Failure to communicate with a large outdoor crowd was formally flagged",
+      "event": "CONMEBOL Copa America 2024 Final",
+      "venue": "Hard Rock Stadium, Miami Gardens, Florida",
+      "date": "2024-07-14",
+      "category": "communication",
+      "tags": ["announcements", "exterior_communication", "information_vacuum"],
+      "what_happened": "Crowds outside the stadium had little reliable information about what was happening or how long a hold would last. In the absence of credible updates, rumour and frustration spread through the queues.",
+      "root_cause": "There was no effective channel for reaching people massed outside the building, so the crowd was left to interpret events for itself.",
+      "official_finding": "The police after-action review specifically recommended that the venue make better use of exterior speakers to communicate with large crowds.",
+      "volunteer_relevance": "This is the single most direct justification for a volunteer communication tool. A volunteer with accurate, well-worded, correctly-registered wording to deliver is precisely the exterior communication layer the review found to be missing.",
+      "authority_boundary_note": "The volunteer conveys information supplied by operations. They do not invent hold durations, causes, or promises about when a gate will open.",
+      "wc2026_link": {
+        "venues": ["Miami Stadium (Hard Rock Stadium)", "all venues"],
+        "why": "The recommendation is generic to large outdoor crowds and applies across host venues."
+      },
+      "retrieval_triggers": {
+        "status": ["CLOSED", "HOLD", "DELAY", "SCANNER_FAILURE"],
+        "crowd_mood": ["confused", "frustrated", "hostile"],
+        "phase": ["pre_kickoff", "post_match"]
+      },
+      "evidence_tier": "official_report",
+      "sources": [
+        {"publisher": "Axios Miami", "url": "https://www.axios.com/local/miami/2025/06/04/world-cup-hard-rock-security-copa-america"}
+      ]
+    },
+    {
+      "id": "PRE-004",
+      "title": "Ground-level warning signals were not collected or passed upward",
+      "event": "CONMEBOL Copa America 2024 Final",
+      "venue": "Hard Rock Stadium, Miami Gardens, Florida",
+      "date": "2024-07-14",
+      "category": "intelligence_gap",
+      "tags": ["early_warning", "reporting", "escalation"],
+      "what_happened": "A very large group had arrived early, parked away from the venue, and moved on the entrances together. The scale and intent of that movement was not picked up or shared through any intelligence channel before it arrived.",
+      "root_cause": "Information that existed in fragments on the ground never reached the people making deployment decisions in time to change the plan.",
+      "official_finding": "The after-action report stated that had this pattern been known in advance, the operational plan would have been modified for that contingency. Officials had acted on a separate advance warning from another Copa America match by increasing police numbers.",
+      "volunteer_relevance": "Volunteers are distributed human sensors. A one-tap way to report what they can see, such as a static queue or an unusually large group approaching, is a legitimate and high-value upward channel that costs the volunteer no authority.",
+      "authority_boundary_note": "Reporting upward is always in scope. Acting on the report is not the volunteer's decision.",
+      "wc2026_link": {
+        "venues": ["all venues"],
+        "why": "Early-warning reporting is venue-independent."
+      },
+      "retrieval_triggers": {
+        "status": ["SURGE", "STATIC_QUEUE", "OPEN"],
+        "crowd_mood": ["pressing", "building"],
+        "phase": ["pre_kickoff"]
+      },
+      "evidence_tier": "official_report",
+      "sources": [
+        {"publisher": "ESPN", "url": "https://www.espn.com/soccer/story/_/id/44717633/copa-america-final-fan-chaos-security-miami-argentina-colombia"}
+      ]
+    },
+    {
+      "id": "PRE-005",
+      "title": "Crowd pressure at turnstiles escalated into a near-fatal crush",
+      "event": "UEFA Champions League Final 2022, Liverpool v Real Madrid",
+      "venue": "Stade de France, Saint-Denis, Paris",
+      "date": "2022-05-28",
+      "category": "ingress_surge",
+      "tags": ["crush", "turnstiles", "near_miss", "queue", "delay"],
+      "what_happened": "Tens of thousands of supporters were held in increasingly compressed queues for hours before kickoff. Crushing developed around security barriers near the turnstiles and the match was delayed by over half an hour.",
+      "root_cause": "Access to the stadium was constricted and there was no effective plan to relieve the build-up once queues began to compress.",
+      "official_finding": "An independent panel commissioned by UEFA described the event as a near-miss, meaning an occasion that came close to becoming a mass-fatality catastrophe, and concluded that the organisation as event owner carried primary responsibility. The 220-page review issued 21 recommendations.",
+      "volunteer_relevance": "The decisive variable was how long people stood compressed without information or an alternative. Volunteers upstream of a compressing queue can divert arrivals before they enter it, which is the only intervention available to them that reduces density.",
+      "authority_boundary_note": "A volunteer must never be advised to enter, push into, or attempt to manage a crowd that is already compressed. Upstream diversion and upward reporting only.",
+      "wc2026_link": {
+        "venues": ["all venues"],
+        "why": "Queue compression at entry is the dominant failure mode at large football events regardless of country."
+      },
+      "retrieval_triggers": {
+        "status": ["STATIC_QUEUE", "HOLD", "CLOSED", "SURGE"],
+        "crowd_mood": ["pressing", "distressed", "frustrated"],
+        "phase": ["pre_kickoff"]
+      },
+      "evidence_tier": "official_report",
+      "sources": [
+        {"publisher": "CNN", "url": "https://www.cnn.com/2023/02/14/football/uefa-responsible-champions-league-final-2022-chaos-spt-intl"},
+        {"publisher": "Sky Sports", "url": "https://www.skysports.com/football/news/11095/12810141/champions-league-final-liverpool-fans-cleared-as-review-finds-uefa-french-authorities-to-be-at-fault"}
+      ]
+    },
+    {
+      "id": "PRE-006",
+      "title": "Blaming the crowd delayed the correct operational response",
+      "event": "UEFA Champions League Final 2022",
+      "venue": "Stade de France, Saint-Denis, Paris",
+      "date": "2022-05-28",
+      "category": "communication",
+      "tags": ["misinformation", "blame", "trust", "register"],
+      "what_happened": "In the immediate aftermath, the disorder was publicly attributed to large numbers of supporters holding fake tickets or arriving late. The independent review found those claims had been overstated and were used to deflect from planning and operational shortcomings.",
+      "root_cause": "An incorrect initial narrative about the crowd shaped both the live response and the public account of it.",
+      "official_finding": "The panel found that assertions about ticketless and fake-ticket supporters were wrongly inflated and presented as fact, deflecting responsibility from the planning failures of the organisations involved. It also noted the policing approach was influenced by outdated assumptions about the visiting supporters.",
+      "volunteer_relevance": "Wording matters operationally, not just diplomatically. Language that implies a crowd is at fault raises hostility in a queue that is already under stress. Volunteer-facing wording should acknowledge the delay, avoid attributing blame, and state what is being done.",
+      "authority_boundary_note": "Volunteers should never repeat unverified causes for a delay, and should never characterise a crowd as the problem.",
+      "wc2026_link": {
+        "venues": ["all venues"],
+        "why": "Directly informs tone and register selection for announcements across all host countries."
+      },
+      "retrieval_triggers": {
+        "status": ["HOLD", "DELAY", "CLOSED"],
+        "crowd_mood": ["hostile", "frustrated", "distrustful"],
+        "phase": ["pre_kickoff", "post_match"]
+      },
+      "evidence_tier": "official_report",
+      "sources": [
+        {"publisher": "CNN", "url": "https://www.cnn.com/2023/02/14/football/uefa-responsible-champions-league-final-2022-chaos-spt-intl"},
+        {"publisher": "Malay Mail / AFP", "url": "https://www.malaymail.com/news/sports/2023/02/14/report-uefa-responsible-for-paris-champions-league-final-chaos/54830"}
+      ]
+    },
+    {
+      "id": "PRE-007",
+      "title": "Poor routing and weak transport coordination funnelled crowds badly",
+      "event": "UEFA Champions League Final 2022",
+      "venue": "Stade de France, Saint-Denis, Paris",
+      "date": "2022-05-28",
+      "category": "wayfinding",
+      "tags": ["routing", "transport_coordination", "bottleneck", "approach_routes"],
+      "what_happened": "Supporters arriving from transport hubs were channelled along approach routes that were not suited to the volumes involved, producing bottlenecks before they even reached the entry checks.",
+      "root_cause": "Coordination between the transport operator and the public-order command was insufficient, and there were no adequate alternative routes to the ground.",
+      "official_finding": "A French government report identified multiple failures in crowd guidance and management, insufficient communication between the transport operator and the public-order command, and a lack of suitable routes to the ground. Its recommendations included a more flexible crowd-control system and better management of routes to major events.",
+      "volunteer_relevance": "Volunteers stationed at decision points between a transit exit and the stadium are the practical fix for a routing failure. When they know which approach is loaded, they can send arrivals down the alternative before the bottleneck forms.",
+      "authority_boundary_note": "Volunteers guide along routes that operations has confirmed are open. They do not open, close, or improvise routes.",
+      "wc2026_link": {
+        "venues": ["all venues"],
+        "why": "2026 venues involve long walks from transit and parking across large campuses, making approach-route guidance central."
+      },
+      "retrieval_triggers": {
+        "status": ["CONGESTED", "STATIC_QUEUE", "REROUTE"],
+        "crowd_mood": ["confused", "frustrated"],
+        "phase": ["pre_kickoff", "post_match"]
+      },
+      "evidence_tier": "official_report",
+      "sources": [
+        {"publisher": "The Guardian", "url": "https://www.pressreader.com/usa/the-guardian-usa/20220611/282265259083350"}
+      ]
+    },
+    {
+      "id": "PRE-008",
+      "title": "Post-match transport collapsed and left crowds stranded for hours",
+      "event": "UEFA Euro 2024, Serbia v England",
+      "venue": "Arena AufSchalke, Gelsenkirchen, Germany",
+      "date": "2024-06-16",
+      "category": "egress_transit",
+      "tags": ["egress", "transit", "queue", "stranded", "night"],
+      "what_happened": "After a late-finishing match, very large numbers of supporters were left waiting for trams and trains. Queues persisted long after the final whistle, some people were still travelling in the early hours of the morning, and others chose to walk long distances instead.",
+      "root_cause": "Transport capacity at the venue was far below the volume leaving at once, and there was no mechanism for spreading departures over time.",
+      "official_finding": "Supporter representatives publicly described the situation as unacceptable. Reporting from the scene described queues persisting well over an hour after the final whistle, delayed services, and confusion about platforms.",
+      "volunteer_relevance": "A volunteer cannot add a tram. They can perform queue triage: telling people the realistic wait, offering the alternative route or station, and directing those who should not stand in a long queue, such as families with small children or anyone unwell, to a seated or sheltered waiting area.",
+      "authority_boundary_note": "Volunteers must not promise service restoration times they have not been given, and must not encourage walking along roads that have not been confirmed as a safe pedestrian route.",
+      "wc2026_link": {
+        "venues": ["all venues"],
+        "why": "2026 egress volumes at venues such as MetLife and Kansas City depend on limited rail and shuttle capacity across long distances."
+      },
+      "retrieval_triggers": {
+        "status": ["TRANSIT_DELAY", "STATIC_QUEUE", "CONGESTED"],
+        "crowd_mood": ["frustrated", "exhausted", "confused"],
+        "phase": ["post_match"]
+      },
+      "evidence_tier": "credible_reporting",
+      "sources": [
+        {"publisher": "BBC Sport", "url": "https://feeds.bbci.co.uk/sport/football/articles/cprr3124z3po"},
+        {"publisher": "Malay Mail / Reuters", "url": "https://www.malaymail.com/news/sports/2024/06/17/euro-2024-fans-tell-of-travel-chaos-in-gelsenkirchen-after-england-serbia-game/140200"}
+      ]
+    },
+    {
+      "id": "PRE-009",
+      "title": "Absent signage and lighting turned a delay into disorientation",
+      "event": "UEFA Euro 2024, Serbia v England",
+      "venue": "Arena AufSchalke, Gelsenkirchen, Germany",
+      "date": "2024-06-16",
+      "category": "wayfinding",
+      "tags": ["signage", "lighting", "night", "platform_confusion"],
+      "what_happened": "People leaving the stadium reported an absence of signage and directions, poor lighting on the exit routes, and confusion about which platform to use once they reached the main station.",
+      "root_cause": "Wayfinding provision was designed for normal operation rather than for a simultaneous mass departure in darkness.",
+      "official_finding": "Reporting from the venue described no signage or directions leaving the ground, poor lighting, and platform confusion at the main station.",
+      "volunteer_relevance": "This is the clearest example of a volunteer functioning as a human sign. Standing at a decision fork with accurate, repeatable, multilingual wording substitutes directly for the missing infrastructure.",
+      "authority_boundary_note": "Volunteers direct only to destinations confirmed open by operations.",
+      "wc2026_link": {
+        "venues": ["all venues"],
+        "why": "Evening kickoffs at high-heat 2026 venues mean large numbers of night-time departures."
+      },
+      "retrieval_triggers": {
+        "status": ["TRANSIT_DELAY", "CONGESTED", "REROUTE"],
+        "crowd_mood": ["confused", "lost", "frustrated"],
+        "phase": ["post_match"]
+      },
+      "evidence_tier": "credible_reporting",
+      "sources": [
+        {"publisher": "BBC Sport", "url": "https://feeds.bbci.co.uk/sport/football/live/c199ynv4vmdt?page=3"}
+      ]
+    },
+    {
+      "id": "PRE-010",
+      "title": "Vulnerable people were trapped inside an undifferentiated queue",
+      "event": "UEFA Euro 2024, Serbia v England",
+      "venue": "Arena AufSchalke, Gelsenkirchen, Germany",
+      "date": "2024-06-16",
+      "category": "accessibility",
+      "tags": ["families", "children", "welfare", "water", "queue_triage"],
+      "what_happened": "Accounts from the transport queue described children distressed, no access to water or food, and people being pressed together, with no separate provision for those least able to tolerate a long wait.",
+      "root_cause": "The queue was treated as one uniform mass, so people with materially different needs experienced the same conditions.",
+      "official_finding": "Documented in supporter accounts and contemporaneous reporting from the queue.",
+      "volunteer_relevance": "Differentiating the queue is squarely within volunteer scope and requires no authority. Identifying families with young children, anyone showing heat or medical distress, and anyone with access needs, and directing them to seating, shade, water, or a medical point, is a high-impact action available at any moment.",
+      "authority_boundary_note": "Volunteers do not triage medically. They direct to the medical point and report upward.",
+      "wc2026_link": {
+        "venues": ["all venues"],
+        "why": "Combines with 2026 heat exposure to make queue differentiation a safety measure rather than a courtesy."
+      },
+      "retrieval_triggers": {
+        "status": ["STATIC_QUEUE", "TRANSIT_DELAY", "HOLD"],
+        "crowd_mood": ["distressed", "exhausted"],
+        "phase": ["pre_kickoff", "post_match"]
+      },
+      "evidence_tier": "credible_reporting",
+      "sources": [
+        {"publisher": "BBC Sport", "url": "https://feeds.bbci.co.uk/sport/football/articles/cprr3124z3po"}
+      ]
+    },
+    {
+      "id": "PRE-011",
+      "title": "A quarter of 2026 matches fall in a heat range requiring safety measures",
+      "event": "FIFA World Cup 2026 heat analysis",
+      "venue": "16 host cities across USA, Canada and Mexico",
+      "date": "2026-06-10",
+      "category": "heat",
+      "tags": ["heat", "wbgt", "hydration", "cooling", "welfare"],
+      "what_happened": "Attribution analysis of the tournament schedule found that around one in four of the 104 matches are likely to be played in conditions at or above the wet-bulb globe temperature threshold at which the players' union recommends cooling measures, with a handful potentially reaching the higher threshold at which it advises postponement. Several open-air matches in Miami were assessed as near-certain to exceed the lower threshold.",
+      "root_cause": "A June-July tournament across North America places multiple venues in seasonal humid-heat conditions, with several stadiums lacking air conditioning.",
+      "official_finding": "Published analysis by World Weather Attribution, with scientists calling on host cities to invest in hydration stations and cooling infrastructure. Separate research identified high-risk host cities including Monterrey, Miami, Kansas City, Boston, New York and Philadelphia. FIFA has mandated cooling breaks in all matches.",
+      "volunteer_relevance": "Heat converts an ordinary queue delay into a medical risk. Any hold or slow-moving queue in these venues should trigger proactive volunteer messaging about water and shade, and active identification of people showing distress.",
+      "authority_boundary_note": "Volunteers direct to water, shade, cooling and medical points. They do not assess or treat heat illness.",
+      "wc2026_link": {
+        "venues": ["Miami Stadium", "Monterrey", "Kansas City", "Boston", "New York New Jersey", "Philadelphia", "Guadalajara", "Houston", "Dallas", "Atlanta"],
+        "why": "These venues were identified as carrying the highest heat-related risk."
+      },
+      "retrieval_triggers": {
+        "status": ["HOLD", "STATIC_QUEUE", "CLOSED", "CONGESTED"],
+        "crowd_mood": ["exhausted", "distressed", "frustrated"],
+        "phase": ["pre_kickoff", "post_match"]
+      },
+      "evidence_tier": "official_report",
+      "sources": [
+        {"publisher": "Scientific American", "url": "https://www.scientificamerican.com/article/2026-fifa-world-cup-players-and-fans-at-risk-of-extreme-heat-climate-scientists-warn/"},
+        {"publisher": "Climate Central", "url": "https://www.climatecentral.org/climate-matters/world-cup-stadiums"},
+        {"publisher": "Brunel University", "url": "https://www.brunel.ac.uk/news-and-events/news/articles/Rethink-2026-World-Cup-to-protect-players-from-extreme-heat"}
+      ]
+    },
+    {
+      "id": "PRE-012",
+      "title": "A July 2026 heat dome placed live matches under extreme heat warnings",
+      "event": "FIFA World Cup 2026, knockout stage",
+      "venue": "Multiple host cities including Kansas City, Philadelphia, Miami and Toronto",
+      "date": "2026-07-02",
+      "category": "heat",
+      "tags": ["heat_warning", "hydration", "alcohol", "live_conditions"],
+      "what_happened": "A heat dome settled over large parts of the United States and Canada during the knockout rounds, with temperatures in several host cities forecast to exceed 43C. At least one match was played under an extreme heat warning with feels-like temperatures around that level, and another host city faced forecast temperatures near 39C with a comparable heat index.",
+      "root_cause": "Seasonal extreme heat coinciding with the tournament schedule.",
+      "official_finding": "Reported during the tournament, with Toronto health authorities urging attending supporters to stay hydrated and limit alcohol intake. Medical teams were stationed at fan festival sites and around stadiums, and some host cities expanded shade, cooling areas and free water.",
+      "volunteer_relevance": "Under an active heat warning, the default posture changes: proactively offer water and shade information before anyone asks, keep messaging short, and treat any static queue as a welfare situation rather than an inconvenience.",
+      "authority_boundary_note": "Volunteers relay official heat guidance and direct to provision. They do not make medical judgements.",
+      "wc2026_link": {
+        "venues": ["Kansas City", "Philadelphia", "Miami Stadium", "Toronto Stadium"],
+        "why": "Live tournament conditions during the current knockout phase."
+      },
+      "retrieval_triggers": {
+        "status": ["HEAT_WARNING", "HOLD", "STATIC_QUEUE"],
+        "crowd_mood": ["exhausted", "distressed"],
+        "phase": ["pre_kickoff", "post_match"]
+      },
+      "evidence_tier": "credible_reporting",
+      "sources": [
+        {"publisher": "Al Jazeera", "url": "https://www.aljazeera.com/news/2026/7/2/how-the-north-american-heatwave-could-impact-the-fifa-world-cup"}
+      ]
+    }
+  ]
+}

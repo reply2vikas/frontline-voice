@@ -1,0 +1,254 @@
+{
+  "corpus_version": "1.0.0",
+  "generated": "2026-07-18",
+  "purpose": "Volunteer standard operating procedures for the Frontline Voice copilot. Every SOP is derived from a cited precedent in precedent_corpus.json and is constrained to actions a volunteer has the authority to take. The deterministic core selects an SOP; the language model may only phrase the announcement using the SOP's intent and register guidance, and may never introduce an action absent from volunteer_actions.",
+  "hard_rules": [
+    "Never instruct anyone to move toward, past, or against a closed gate, a security line, or police.",
+    "Never state a cause or a duration for a hold that was not supplied by the operations feed.",
+    "Never characterise the crowd as being at fault.",
+    "Never name a gate, zone, route or facility that was not supplied by the deterministic core.",
+    "Never make a medical assessment; direct to the medical point and report upward.",
+    "When information is unavailable, say so plainly and state what is being done instead."
+  ],
+  "register_policy": {
+    "principle": "Register is a safety control, not a courtesy. Imperative and patronising phrasing raises hostility in a compressed or delayed crowd. Collective, validating phrasing lowers it.",
+    "modes": {
+      "informational": "Crowd is calm and cooperative. Give the fact, the reason, and the next step. Neutral and brief.",
+      "de_escalating": "Crowd is frustrated or hostile. Acknowledge the inconvenience first, avoid blame and avoid commands, state what is being done, then give one clear action.",
+      "welfare": "Crowd is exhausted, distressed, or under heat load. Lead with water, shade and seating. Keep sentences very short.",
+      "urgent_clear": "A specific safety instruction must land immediately. One instruction, one destination, no explanation until after the instruction."
+    },
+    "language_notes": {
+      "es": "Prefer collective, first-person-plural phrasing over direct commands. A phrase such as 'demos un paso atras' reads as shared and cooperative, whereas a bare imperative such as 'retroceda' reads as an order and can escalate. Avoid 'calmense', which is heard as patronising. Validating patience is more effective than instructing calm.",
+      "fr": "Use vouvoiement throughout. Prefer 'nous vous remercions de votre patience' style acknowledgement before any instruction. Avoid bare imperatives in a compressed crowd.",
+      "en": "Avoid the words calm down, disperse, and comply. Prefer stating what is happening, what is being done, and where to go."
+    },
+    "vocabulary_warning": "Transport vocabulary does not translate literally across regions. Confirm the local term for the specific mode rather than translating the English word directly."
+  },
+  "sops": [
+    {
+      "id": "SOP-001",
+      "title": "Entry point closed or on hold",
+      "derived_from": ["PRE-001", "PRE-003", "PRE-005"],
+      "applies_when": {"status": ["CLOSED", "HOLD"], "phase": ["pre_kickoff"]},
+      "objective": "Prevent additional arrivals from joining a compressing queue, and remove the information vacuum for those already waiting.",
+      "volunteer_actions": [
+        "Intercept arrivals before they reach the affected entry and direct them to the alternative entry supplied by operations.",
+        "Tell waiting people what is known, including that a hold is in place and that an update will follow.",
+        "Report the queue state upward.",
+        "Identify anyone in distress and direct them to the medical point."
+      ],
+      "do_not": [
+        "Do not move people toward the closed entry for any reason.",
+        "Do not state when the entry will reopen unless operations has given a time.",
+        "Do not speculate about the cause."
+      ],
+      "escalate_if": ["Queue is static and compressing", "Anyone reports difficulty breathing or is unable to move freely", "Arrivals continue to press forward after redirection"],
+      "announcement_intent": "Acknowledge the wait, state that a hold is in place, give the confirmed alternative entry, and confirm that an update will follow.",
+      "default_register": "de_escalating"
+    },
+    {
+      "id": "SOP-002",
+      "title": "Scanner or turnstile failure at an entry point",
+      "derived_from": ["PRE-001", "PRE-003"],
+      "applies_when": {"status": ["SCANNER_FAILURE", "DELAY"], "phase": ["pre_kickoff"]},
+      "objective": "Convert a technical fault into a comprehensible, time-bounded wait so that the queue does not interpret it as arbitrary.",
+      "volunteer_actions": [
+        "Explain that a technical fault is being worked on at this entry.",
+        "Direct arrivals to the confirmed working entry.",
+        "Confirm to ticket holders that their ticket remains valid.",
+        "Report queue growth upward."
+      ],
+      "do_not": ["Do not attribute the fault to the crowd", "Do not guarantee a repair time", "Do not tell people to force or bypass a barrier"],
+      "escalate_if": ["Queue growth outpaces the redirect rate", "Pressure builds at the barrier"],
+      "announcement_intent": "Name the fault plainly, reassure on ticket validity, give the confirmed alternative entry.",
+      "default_register": "informational"
+    },
+    {
+      "id": "SOP-003",
+      "title": "Large group approaching a single entry",
+      "derived_from": ["PRE-002", "PRE-004"],
+      "applies_when": {"status": ["SURGE", "OPEN"], "phase": ["pre_kickoff"]},
+      "objective": "Spread arrivals across entries before a single point becomes saturated, and get the observation upward early.",
+      "volunteer_actions": [
+        "Split arriving flow toward the confirmed under-loaded entries.",
+        "State where ticket checks happen so people do not converge on the wrong point.",
+        "Report the size and direction of the approaching group upward immediately."
+      ],
+      "do_not": ["Do not attempt to hold or block a group", "Do not screen tickets"],
+      "escalate_if": ["Group size appears beyond what the entry can absorb", "Group is moving with visible intent to enter together"],
+      "announcement_intent": "Give a clear split instruction to two named open entries with an approximate walking time to each.",
+      "default_register": "informational"
+    },
+    {
+      "id": "SOP-004",
+      "title": "Queue static for an extended period",
+      "derived_from": ["PRE-005", "PRE-010", "PRE-011"],
+      "applies_when": {"status": ["STATIC_QUEUE"], "phase": ["pre_kickoff", "post_match"]},
+      "objective": "Treat a static queue as a welfare situation, because standing time rather than queue length is what produces harm.",
+      "volunteer_actions": [
+        "Give a realistic wait estimate only if operations has supplied one, otherwise say the wait is being assessed.",
+        "Identify families with young children, older people, and anyone showing heat or medical distress, and direct them to seating, shade, water or the medical point.",
+        "Point to the nearest water and shade provision.",
+        "Report the duration the queue has been static."
+      ],
+      "do_not": ["Do not invent a wait time", "Do not tell people to be patient without offering something concrete"],
+      "escalate_if": ["Static for longer than the operations threshold", "Any sign of compression", "Any heat-distress presentation"],
+      "announcement_intent": "Acknowledge the wait, state what is being done, point to water and shade, invite anyone unwell to come forward.",
+      "default_register": "welfare"
+    },
+    {
+      "id": "SOP-005",
+      "title": "Active heat warning at the venue",
+      "derived_from": ["PRE-011", "PRE-012"],
+      "applies_when": {"status": ["HEAT_WARNING"], "phase": ["pre_kickoff", "post_match"]},
+      "objective": "Move from reactive to proactive welfare messaging while conditions are dangerous.",
+      "volunteer_actions": [
+        "Offer water and shade information before being asked.",
+        "Direct to the nearest confirmed cooling or shaded area.",
+        "Relay official guidance on hydration and moderating alcohol intake.",
+        "Watch for and direct anyone showing distress to the medical point.",
+        "Keep every message short."
+      ],
+      "do_not": ["Do not assess or treat heat illness", "Do not keep people standing in direct sun to hear a long announcement"],
+      "escalate_if": ["Anyone presents as unwell", "Water or shade provision at this location is exhausted"],
+      "announcement_intent": "Water location, shade location, short hydration reminder, invitation to come forward if unwell.",
+      "default_register": "welfare"
+    },
+    {
+      "id": "SOP-006",
+      "title": "Post-match transport delay",
+      "derived_from": ["PRE-008", "PRE-009", "PRE-010"],
+      "applies_when": {"status": ["TRANSIT_DELAY"], "phase": ["post_match"]},
+      "objective": "Spread departures over time and space rather than allowing everyone to converge on one platform at once.",
+      "volunteer_actions": [
+        "State the realistic wait supplied by operations for this service.",
+        "Offer the confirmed alternative station, line, or shuttle point.",
+        "Direct people who should not stand in a long queue to a seated or sheltered waiting area.",
+        "Give the platform or stand explicitly, since platform confusion is a known failure.",
+        "Report queue length upward."
+      ],
+      "do_not": [
+        "Do not promise service restoration times not supplied by operations.",
+        "Do not suggest walking along any route not confirmed as a safe pedestrian route.",
+        "Do not send people to an alternative station without confirming it is running."
+      ],
+      "escalate_if": ["Queue extends beyond the managed area", "People begin walking onto roads", "Families or vulnerable people are stuck in the queue"],
+      "announcement_intent": "Realistic wait, named alternative with platform, sheltered waiting option, reassurance that services continue.",
+      "default_register": "welfare"
+    },
+    {
+      "id": "SOP-007",
+      "title": "Acting as a human sign at a decision point",
+      "derived_from": ["PRE-007", "PRE-009"],
+      "applies_when": {"status": ["REROUTE", "CONGESTED", "OPEN"], "phase": ["pre_kickoff", "post_match"]},
+      "objective": "Substitute for missing or contradicted signage, especially where a digital map disagrees with the physical layout.",
+      "volunteer_actions": [
+        "Give one destination and one direction at a time.",
+        "State explicitly when a route people expect is not available tonight, and immediately give the confirmed alternative.",
+        "Repeat the same wording consistently so groups arriving separately receive identical instructions.",
+        "Report any point where people are visibly hesitating or doubling back."
+      ],
+      "do_not": ["Do not improvise a shortcut", "Do not contradict operations-confirmed routing"],
+      "escalate_if": ["Counter-flows develop", "People are repeatedly arriving at a closed route"],
+      "announcement_intent": "Name the closed route, name the open alternative, give direction and approximate walking time.",
+      "default_register": "informational"
+    },
+    {
+      "id": "SOP-008",
+      "title": "Crowd is hostile or blaming staff",
+      "derived_from": ["PRE-006", "PRE-003"],
+      "applies_when": {"crowd_mood": ["hostile", "distrustful"], "phase": ["pre_kickoff", "post_match"]},
+      "objective": "Reduce hostility through wording, because a queue that believes it is being blamed becomes harder to move.",
+      "volunteer_actions": [
+        "Acknowledge the inconvenience before giving any instruction.",
+        "State what is actively being done.",
+        "Give exactly one clear action.",
+        "Avoid any phrasing that attributes the delay to those waiting.",
+        "Report hostility level upward."
+      ],
+      "do_not": [
+        "Do not use commands such as calm down or disperse.",
+        "Do not repeat unverified causes.",
+        "Do not argue or negotiate individually while a crowd is waiting."
+      ],
+      "escalate_if": ["Hostility directed at staff or barriers", "Individuals attempting to breach a line"],
+      "announcement_intent": "Acknowledgement first, then what is being done, then one action. No blame, no imperatives.",
+      "default_register": "de_escalating"
+    },
+    {
+      "id": "SOP-009",
+      "title": "Fan in sensory or non-verbal distress",
+      "derived_from": ["PRE-010", "PRE-011"],
+      "applies_when": {"issue": ["fan_distress", "non_verbal", "sensory_overload"], "phase": ["pre_kickoff", "post_match"]},
+      "objective": "Give an overwhelmed person a calm, readable, low-demand route out of the crowd without requiring them to speak.",
+      "volunteer_actions": [
+        "Show the message on screen rather than speaking it, in the person's language where known.",
+        "Direct to the nearest confirmed quiet, sensory or medical area.",
+        "Keep sentences short and free of instruction stacking.",
+        "Offer to walk with them to the point if the location allows.",
+        "Report upward."
+      ],
+      "do_not": ["Do not raise your voice", "Do not ask a series of questions", "Do not make a medical assessment", "Do not require a verbal response"],
+      "escalate_if": ["Person is unresponsive", "Person is separated from a group", "No quiet area is available nearby"],
+      "announcement_intent": "One short reassurance, one destination, one offer of help. Displayed, not shouted.",
+      "default_register": "welfare"
+    },
+    {
+      "id": "SOP-010",
+      "title": "Reporting ground truth upward",
+      "derived_from": ["PRE-004", "PRE-007"],
+      "applies_when": {"status": ["ANY"], "phase": ["pre_kickoff", "post_match"]},
+      "objective": "Close the intelligence gap that repeatedly appears in after-action findings, using the volunteer as a distributed observer.",
+      "volunteer_actions": [
+        "Report a queue that has been static beyond the threshold.",
+        "Report an unusually large group approaching, with direction and rough size.",
+        "Report any route where people are doubling back or hesitating.",
+        "Report exhausted water, shade or seating provision.",
+        "Report anything observed that contradicts the operations feed."
+      ],
+      "do_not": ["Do not delay a report in order to verify it fully", "Do not act on the report beyond volunteer scope"],
+      "escalate_if": ["Any observation involving compression, distress, or a breach"],
+      "announcement_intent": "Not applicable. This SOP produces an upward report, not a crowd announcement.",
+      "default_register": "informational"
+    },
+    {
+      "id": "SOP-011",
+      "title": "Information unavailable",
+      "derived_from": ["PRE-003", "PRE-006"],
+      "applies_when": {"status": ["UNKNOWN", "FEED_STALE"], "phase": ["pre_kickoff", "post_match"]},
+      "objective": "Preserve credibility when the copilot has nothing confirmed to relay, since a wrong answer costs more than an absent one.",
+      "volunteer_actions": [
+        "State plainly that the information is being confirmed.",
+        "Give the time by which an update is expected, if operations has supplied one.",
+        "Offer the nearest confirmed facility such as water, shade, seating or toilets in the meantime.",
+        "Request an update upward."
+      ],
+      "do_not": ["Do not guess", "Do not fill the gap with reassurance that implies knowledge", "Do not repeat rumour circulating in the queue"],
+      "escalate_if": ["Feed has been stale beyond the operations threshold", "Crowd is acting on rumour"],
+      "announcement_intent": "State honestly that it is being confirmed, give the update timing if known, offer one concrete thing that is available now.",
+      "default_register": "de_escalating"
+    },
+    {
+      "id": "SOP-012",
+      "title": "Request outside volunteer authority",
+      "derived_from": ["PRE-001", "PRE-005"],
+      "applies_when": {"issue": ["out_of_scope_request"], "phase": ["pre_kickoff", "post_match"]},
+      "objective": "Enforce the authority boundary at the point of contact, and route the request to someone who can act on it.",
+      "volunteer_actions": [
+        "Say clearly that this decision sits with the operations or security team.",
+        "Escalate the request upward.",
+        "Offer what is within scope in the meantime, such as an alternative entry, water, shade, seating, or the medical point."
+      ],
+      "do_not": [
+        "Do not open, close, or hold any barrier.",
+        "Do not direct anyone past a security line.",
+        "Do not commit operations to any action.",
+        "Do not improvise an exception."
+      ],
+      "escalate_if": ["Always"],
+      "announcement_intent": "State honestly what you cannot do, name who can, and give one thing you can do now.",
+      "default_register": "informational"
+    }
+  ]
+}
