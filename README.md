@@ -15,6 +15,7 @@ Runs with no API key required — the deterministic engine answers when no crede
 ![Three-tap input: location, issue, crowd mood](docs/taps.png)
 
 ![Venue map with live gate status](docs/map.png)
+
 ---
 
 ## The problem
@@ -163,3 +164,4 @@ volunteers do not have them. Accessibility routing is limited to pre-mapped step
 
 points rather than live geospatial routing, which cannot be faked responsibly. Qatar 2022 and Paris 2024
 were deliberately excluded from the corpus because specific documented findings could not be verified.
+
