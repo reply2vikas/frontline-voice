@@ -10,3 +10,5 @@ htmlcov/
 .mypy_cache/
 .ruff_cache/
 /research/
+.DS_Store
+**/.DS_Store
