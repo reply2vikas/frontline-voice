@@ -154,5 +154,9 @@ operations tool, and the schema applies idempotently on connect so a cold contai
 
 **Known limits.** Ops feed is simulated; the tool assumes no CCTV or crowd-density sensors, because
 volunteers do not have them. Accessibility routing is limited to pre-mapped step-free, sensory and medical
+
+<img width="1680" height="1050" alt="Frontline Voice Demo 2" src="https://github.com/user-attachments/assets/f0202540-c2bc-4765-96c8-0e34578bc4e3" />
+<img width="1680" height="1050" alt="Frontline Voice Demo 1" src="https://github.com/user-attachments/assets/5668ae89-248b-4a05-8180-97a38dacf7c7" />
+
 points rather than live geospatial routing, which cannot be faked responsibly. Qatar 2022 and Paris 2024
 were deliberately excluded from the corpus because specific documented findings could not be verified.
