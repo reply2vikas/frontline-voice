@@ -1,41 +1,99 @@
-  :root{
-    --bg:#0d1117; --panel:#161b22; --line:#30363d; --ink:#e6edf3; --dim:#9198a1;
-    --accent:#2f81f7; --warn:#d29922; --crit:#f85149; --ok:#3fb950; --focus:#f0b72f;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-       background:var(--bg);color:var(--ink)}
-  header{padding:1rem 1.25rem;border-bottom:1px solid var(--line);background:var(--panel)}
-  h1{font-size:1.15rem;margin:0}
-  h1 span{color:var(--dim);font-weight:400;font-size:.85rem;display:block;margin-top:.15rem}
-  main{max-width:900px;margin:0 auto;padding:1.25rem}
-  fieldset{border:1px solid var(--line);border-radius:10px;padding:.9rem;margin:0 0 1rem}
-  legend{padding:0 .45rem;color:var(--dim);font-size:.82rem;text-transform:uppercase;letter-spacing:.06em}
-  .taps{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.55rem}
-  button.tap{background:var(--panel);color:var(--ink);border:1px solid var(--line);
-    border-radius:10px;padding:.85rem .6rem;font-size:1rem;cursor:pointer;min-height:56px}
-  button.tap[aria-pressed="true"]{border-color:var(--accent);background:#132a4d;font-weight:600}
-  button.tap:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-  .go{width:100%;padding:1rem;font-size:1.05rem;font-weight:600;border:0;border-radius:10px;
-    background:var(--accent);color:#fff;cursor:pointer;min-height:56px}
-  .go[disabled]{opacity:.5;cursor:not-allowed}
-  select{width:100%;padding:.6rem;background:var(--panel);color:var(--ink);
-    border:1px solid var(--line);border-radius:8px;font-size:1rem}
-  .card{border:1px solid var(--line);border-radius:10px;padding:1rem;margin-bottom:1rem;background:var(--panel)}
-  .rec{font-size:1.1rem;font-weight:600;margin:0 0 .6rem}
-  .badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.7rem}
-  .badge{font-size:.75rem;padding:.2rem .55rem;border-radius:99px;border:1px solid var(--line);color:var(--dim)}
-  .badge.crit{color:var(--crit);border-color:var(--crit)}
-  .badge.elev{color:var(--warn);border-color:var(--warn)}
-  .badge.ok{color:var(--ok);border-color:var(--ok)}
-  ul{margin:.4rem 0 0;padding-left:1.15rem}
-  li{margin-bottom:.3rem}
-  .ann{border-left:3px solid var(--accent);padding:.55rem .8rem;margin:.5rem 0;background:#0b1220}
-  .ann b{color:var(--dim);font-size:.75rem;letter-spacing:.08em}
-  .ann p{margin:.25rem 0 0;font-size:1.05rem}
-  .cite{font-size:.87rem;border-top:1px solid var(--line);padding-top:.5rem;margin-top:.5rem}
-  .cite a{color:var(--accent)}
-  .tier{font-size:.7rem;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:.1rem .45rem;margin-left:.3rem}
-  .muted{color:var(--dim);font-size:.85rem}
-  [hidden]{display:none !important}
-  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* Frontline Voice — palette verified against WCAG 2.1 AAA (7:1) on both
+   background and panel surfaces. See tests/test_a11y.py for the contrast gate. */
+:root{
+  --bg:#0b0e14; --panel:#151a23; --panel2:#1b2230; --line:#39445a;
+  --ink:#f2f6fa; --dim:#b6c0cd;
+  --accent:#7fb2ff; --ok:#6ee7a0; --warn:#f2c14e; --crit:#ff9d94; --focus:#ffd166;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+
+.skip{position:absolute;left:-9999px;top:0;background:var(--accent);color:#08111f;
+  padding:.75rem 1.25rem;z-index:100;font-weight:700;border-radius:0 0 8px 0}
+.skip:focus{left:0}
+
+:focus-visible{outline:3px solid var(--focus);outline-offset:3px;border-radius:6px}
+
+header{padding:1rem 1.25rem .75rem;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{font-size:1.2rem;margin:0;letter-spacing:-.01em}
+header p{margin:.2rem 0 0;color:var(--dim);font-size:.9rem}
+
+nav[role="tablist"]{display:flex;gap:.35rem;padding:.6rem 1.25rem 0;background:var(--panel);
+  border-bottom:1px solid var(--line);overflow-x:auto}
+button[role="tab"]{background:transparent;color:var(--dim);border:1px solid transparent;
+  border-bottom:none;padding:.6rem 1rem;font-size:.95rem;cursor:pointer;white-space:nowrap;
+  border-radius:8px 8px 0 0;min-height:44px}
+button[role="tab"][aria-selected="true"]{background:var(--bg);color:var(--ink);
+  border-color:var(--line);font-weight:600;position:relative;top:1px}
+
+main{max-width:960px;margin:0 auto;padding:1.25rem}
+[role="tabpanel"][hidden]{display:none}
+
+fieldset{border:1px solid var(--line);border-radius:12px;padding:.9rem;margin:0 0 1rem;background:var(--panel)}
+legend{padding:0 .45rem;color:var(--dim);font-size:.8rem;text-transform:uppercase;letter-spacing:.07em}
+
+.taps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.55rem}
+button.tap{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+  border-radius:10px;padding:.85rem .6rem;font-size:1rem;cursor:pointer;min-height:56px}
+button.tap[aria-pressed="true"]{border-color:var(--accent);background:#16294a;font-weight:700}
+button.tap:hover{border-color:var(--accent)}
+
+.go{width:100%;padding:1rem;font-size:1.05rem;font-weight:700;border:0;border-radius:12px;
+  background:var(--accent);color:#08111f;cursor:pointer;min-height:56px}
+.go:hover{filter:brightness(1.08)}
+.go[disabled]{opacity:.55;cursor:progress}
+
+select{width:100%;padding:.7rem;background:var(--panel2);color:var(--ink);
+  border:1px solid var(--line);border-radius:10px;font-size:1rem;min-height:48px}
+
+.card{border:1px solid var(--line);border-radius:12px;padding:1rem;margin-bottom:1rem;background:var(--panel)}
+.card h2{font-size:.82rem;color:var(--dim);margin:.9rem 0 .3rem;text-transform:uppercase;letter-spacing:.07em}
+.card h2:first-child{margin-top:0}
+.rec{font-size:1.12rem;font-weight:700;margin:0 0 .6rem}
+
+.badges{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.75rem}
+.badge{font-size:.75rem;padding:.25rem .6rem;border-radius:99px;border:1px solid var(--line);color:var(--dim)}
+.badge.crit{color:var(--crit);border-color:var(--crit)}
+.badge.elev{color:var(--warn);border-color:var(--warn)}
+.badge.ok{color:var(--ok);border-color:var(--ok)}
+
+ul{margin:.4rem 0 0;padding-left:1.2rem}
+li{margin-bottom:.35rem}
+
+.ann{border-left:4px solid var(--accent);padding:.6rem .85rem;margin:.55rem 0;background:var(--panel2);border-radius:0 8px 8px 0}
+.ann b{color:var(--dim);font-size:.72rem;letter-spacing:.1em}
+.ann p{margin:.25rem 0 0;font-size:1.05rem}
+
+.cite{font-size:.88rem;border-top:1px solid var(--line);padding-top:.55rem;margin-top:.55rem}
+.cite a{color:var(--accent)}
+.tier{font-size:.7rem;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:.12rem .5rem;margin-left:.35rem}
+.muted{color:var(--dim);font-size:.88rem}
+
+/* Telemetry strip */
+.telemetry{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem;margin-bottom:1rem}
+.metric{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.65rem .8rem}
+.metric dt{color:var(--dim);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;margin:0}
+.metric dd{margin:.2rem 0 0;font-size:1.25rem;font-weight:700}
+
+/* Venue map */
+.mapwrap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:1rem}
+svg.map{width:100%;height:auto;display:block}
+svg.map text{font:600 11px system-ui,sans-serif}
+.zone{cursor:pointer}
+.zone:focus-visible rect,.zone:focus-visible circle{outline:3px solid var(--focus)}
+.legend{display:flex;gap:1rem;flex-wrap:wrap;margin-top:.8rem;font-size:.85rem;color:var(--dim)}
+.legend span{display:flex;align-items:center;gap:.35rem}
+.dot{width:12px;height:12px;border-radius:3px;display:inline-block}
+
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:.55rem .5rem;border-bottom:1px solid var(--line)}
+th{color:var(--dim);font-size:.75rem;text-transform:uppercase;letter-spacing:.06em}
+caption{text-align:left;color:var(--dim);font-size:.85rem;padding-bottom:.5rem}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none !important}
+
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important}
+  html{scroll-behavior:auto}}

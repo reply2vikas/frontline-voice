@@ -20,6 +20,7 @@ from starlette.requests import Request
 
 from . import audit
 from .config import settings
+from .simulator import feed_for, venue_state
 from .corpus import load_precedents, load_sops, retrieve
 from .engine import decide
 from .llm import generate
@@ -132,6 +133,23 @@ def decide_endpoint(req: DecideRequest) -> DecisionResponse:
     )
     audit.record(response)
     return response
+
+
+@app.get("/api/venue-state/{venue_id}")
+def venue_state_endpoint(venue_id: str) -> dict[str, Any]:
+    """Simulated live operations feed, used by the map and telemetry views."""
+    try:
+        return venue_state(venue_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@app.get("/api/venue-feed/{venue_id}")
+def venue_feed_endpoint(venue_id: str) -> list[dict[str, Any]]:
+    try:
+        return feed_for(venue_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
 @app.post("/api/upload/feed")

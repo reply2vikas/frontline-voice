@@ -4,46 +4,94 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Frontline Voice — Volunteer Crowd De-escalation Copilot</title>
+<meta name="description" content="Crowd de-escalation copilot for last-mile stadium volunteers at the FIFA World Cup 2026.">
+<link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/static/app.css">
 <script src="/static/app.js" defer></script>
 </head>
 <body>
+<a class="skip" href="#main">Skip to main content</a>
+
 <header>
-  <h1>Frontline Voice
-    <span>Crowd de-escalation copilot for last-mile volunteers · FIFA World Cup 2026</span>
-  </h1>
+  <h1>Frontline Voice</h1>
+  <p>Crowd de-escalation copilot for last-mile volunteers · FIFA World Cup 2026</p>
 </header>
 
-<main>
-  <form id="f">
-    <fieldset>
-      <legend>Venue</legend>
-      <label class="sr" for="venue">Venue</label>
-      <select id="venue" name="venue"></select>
-      <p class="muted" id="feedNote" style="margin:.6rem 0 0"></p>
-    </fieldset>
+<nav role="tablist" aria-label="Views">
+  <button role="tab" id="tab-guide" aria-controls="panel-guide" aria-selected="true" type="button">Volunteer</button>
+  <button role="tab" id="tab-map" aria-controls="panel-map" aria-selected="false" tabindex="-1" type="button">Venue map</button>
+  <button role="tab" id="tab-log" aria-controls="panel-log" aria-selected="false" tabindex="-1" type="button">Operations log</button>
+</nav>
 
-    <fieldset>
-      <legend>1 · Where are you</legend>
-      <label class="sr" for="zone">Your location</label>
-      <select id="zone" name="zone"></select>
-    </fieldset>
+<main id="main">
 
-    <fieldset>
-      <legend>2 · What is happening</legend>
-      <div class="taps" role="group" aria-label="Issue" id="issue"></div>
-    </fieldset>
+  <!-- Volunteer view -->
+  <section role="tabpanel" id="panel-guide" aria-labelledby="tab-guide" tabindex="0">
+    <form id="f">
+      <fieldset>
+        <legend>Venue</legend>
+        <label class="sr" for="venue">Select venue</label>
+        <select id="venue"></select>
+        <p class="muted" id="feedNote" style="margin:.6rem 0 0"></p>
+      </fieldset>
 
-    <fieldset>
-      <legend>3 · Crowd mood</legend>
-      <div class="taps" role="group" aria-label="Crowd mood" id="mood"></div>
-    </fieldset>
+      <fieldset>
+        <legend>1 · Where are you</legend>
+        <label class="sr" for="zone">Your location</label>
+        <select id="zone"></select>
+      </fieldset>
 
-    <button class="go" id="go" type="submit">Get guidance</button>
-  </form>
+      <fieldset>
+        <legend>2 · What is happening</legend>
+        <div class="taps" role="group" aria-label="What is happening" id="issue"></div>
+      </fieldset>
 
-  <div id="out" aria-live="polite" aria-busy="false"></div>
+      <fieldset>
+        <legend>3 · Crowd mood</legend>
+        <div class="taps" role="group" aria-label="Crowd mood" id="mood"></div>
+      </fieldset>
+
+      <button class="go" id="go" type="submit">Get guidance</button>
+    </form>
+
+    <p class="sr" role="status" id="srstatus"></p>
+    <div id="out" aria-live="polite" aria-busy="false"></div>
+  </section>
+
+  <!-- Venue map -->
+  <section role="tabpanel" id="panel-map" aria-labelledby="tab-map" tabindex="0" hidden>
+    <dl class="telemetry" id="telemetry"></dl>
+    <div class="mapwrap">
+      <h2 class="sr">Venue map</h2>
+      <div id="map"></div>
+      <div class="legend" aria-hidden="true">
+        <span><i class="dot" style="background:var(--ok)"></i> Open</span>
+        <span><i class="dot" style="background:var(--warn)"></i> Congested or queueing</span>
+        <span><i class="dot" style="background:var(--crit)"></i> Closed or failing</span>
+        <span><i class="dot" style="background:var(--accent)"></i> Welfare, medical, transit</span>
+      </div>
+      <p class="muted" style="margin-top:.7rem">Operations feed is simulated deterministically. Select a gate to use it in the Volunteer view.</p>
+      <table id="zonetable" style="margin-top:1rem">
+        <caption>Live zone status — text equivalent of the map</caption>
+        <thead><tr><th scope="col">Zone</th><th scope="col">Type</th><th scope="col">Status</th><th scope="col">Load</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Operations log -->
+  <section role="tabpanel" id="panel-log" aria-labelledby="tab-log" tabindex="0" hidden>
+    <div class="card">
+      <h2>Decision audit log</h2>
+      <p class="muted">Every recommendation shown to a volunteer is recorded with the inputs that produced it, the engine that phrased it, and whether it was escalated.</p>
+      <table id="logtable">
+        <caption class="sr">Recorded decisions, most recent first</caption>
+        <thead><tr><th scope="col">Time</th><th scope="col">Venue</th><th scope="col">Zone</th><th scope="col">SOP</th><th scope="col">Severity</th><th scope="col">Engine</th><th scope="col">Escalated</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
 </main>
-
 </body>
 </html>
