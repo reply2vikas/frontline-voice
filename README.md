@@ -8,6 +8,13 @@ Turn a raw operations alert into calm, credible, correctly-worded action in unde
 
 Runs with no API key required — the deterministic engine answers when no credentials are configured, so you can evaluate the whole product immediately.
 
+## Screenshots
+
+![Guidance output with rationale, alternatives, multilingual scripts and cited precedents](docs/guidance.png)
+
+![Three-tap input: location, issue, crowd mood](docs/taps.png)
+
+![Venue map with live gate status](docs/map.png)
 
 ---
 
@@ -154,5 +161,15 @@ operations tool, and the schema applies idempotently on connect so a cold contai
 
 **Known limits.** Ops feed is simulated; the tool assumes no CCTV or crowd-density sensors, because
 volunteers do not have them. Accessibility routing is limited to pre-mapped step-free, sensory and medical
+
 points rather than live geospatial routing, which cannot be faked responsibly. Qatar 2022 and Paris 2024
 were deliberately excluded from the corpus because specific documented findings could not be verified.
+
+
+<img width="1680" height="1050" alt="guidance" src="https://github.com/user-attachments/assets/deff3d8b-68ec-411c-8d43-8033c38beedd" />
+
+<img width="1680" height="1050" alt="taps" src="https://github.com/user-attachments/assets/c441e409-25cc-48ef-9bf8-417a11b092eb" />
+
+<img width="1680" height="1049" alt="map" src="https://github.com/user-attachments/assets/01f110f3-6655-4e47-ba57-f99ae9c93876" />
+
+
