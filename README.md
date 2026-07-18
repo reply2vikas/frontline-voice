@@ -8,7 +8,13 @@ Turn a raw operations alert into calm, credible, correctly-worded action in unde
 
 Runs with no API key required — the deterministic engine answers when no credentials are configured, so you can evaluate the whole product immediately.
 
+## Screenshots
 
+![Guidance output with rationale, alternatives, multilingual scripts and cited precedents](docs/guidance.png)
+
+![Three-tap input: location, issue, crowd mood](docs/taps.png)
+
+![Venue map with live gate status](docs/map.png)
 ---
 
 ## The problem
@@ -157,7 +163,3 @@ volunteers do not have them. Accessibility routing is limited to pre-mapped step
 
 points rather than live geospatial routing, which cannot be faked responsibly. Qatar 2022 and Paris 2024
 were deliberately excluded from the corpus because specific documented findings could not be verified.
-
-<img width="1680" height="1050" alt="Frontline Voice Demo 1" src="https://github.com/user-attachments/assets/5668ae89-248b-4a05-8180-97a38dacf7c7" />
-
-<img width="1680" height="1050" alt="Frontline Voice Demo 2" src="https://github.com/user-attachments/assets/f0202540-c2bc-4765-96c8-0e34578bc4e3" />
