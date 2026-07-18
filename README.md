@@ -165,3 +165,11 @@ volunteers do not have them. Accessibility routing is limited to pre-mapped step
 points rather than live geospatial routing, which cannot be faked responsibly. Qatar 2022 and Paris 2024
 were deliberately excluded from the corpus because specific documented findings could not be verified.
 
+
+<img width="1680" height="1050" alt="guidance" src="https://github.com/user-attachments/assets/deff3d8b-68ec-411c-8d43-8033c38beedd" />
+
+<img width="1680" height="1050" alt="taps" src="https://github.com/user-attachments/assets/c441e409-25cc-48ef-9bf8-417a11b092eb" />
+
+<img width="1680" height="1049" alt="map" src="https://github.com/user-attachments/assets/01f110f3-6655-4e47-ba57-f99ae9c93876" />
+
+
