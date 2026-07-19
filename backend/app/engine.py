@@ -15,6 +15,8 @@ so that each rule can be read, tested and changed in isolation.
 
 from __future__ import annotations
 
+from typing import Any
+
 from .config import settings
 from .corpus import get_sop
 from .schemas import (
@@ -188,7 +190,7 @@ def _assemble(
     venue: Venue,
     origin: Zone,
     report: VolunteerReport,
-    sop: dict,
+    sop: dict[str, Any],
     status: OpsStatus,
     alternatives: list[Zone],
     welfare: Zone | None,
@@ -240,7 +242,8 @@ def decide(
     heat_active = _heat_is_active(venue, feed, heat_warning)
     alternatives = compute_alternatives(venue, origin, feed, report.phase)
     sop = get_sop(select_sop_id(report, status)) or get_sop("SOP-010")
-    assert sop is not None  # noqa: S101 - SOP-010 is the guaranteed fallback
+    if sop is None:  # pragma: no cover - SOP-010 is present in the shipped corpus
+        raise RuntimeError("SOP corpus is missing the SOP-010 fallback procedure")
 
     return _assemble(
         venue=venue,

@@ -8,7 +8,7 @@ the closed set supplied by the deterministic core.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -141,7 +141,7 @@ class Citation(BaseModel):
     venue: str
     date: str
     evidence_tier: str
-    sources: list[dict]
+    sources: list[dict[str, Any]]
     relevance: float
 
 

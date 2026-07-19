@@ -15,7 +15,9 @@ jobs:
       - name: Lint
         run: ruff check . && ruff format --check .
       - name: Types
-        run: mypy app
+        run: mypy --strict app
+      - name: Security scan
+        run: bandit -r app -q
       - name: Dependency audit
         run: pip-audit -r requirements.txt
       - name: Tests with coverage gate

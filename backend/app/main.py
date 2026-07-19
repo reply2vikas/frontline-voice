@@ -6,6 +6,7 @@ cleanly, plus the harness an evaluator needs to run it on their own data.
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
@@ -17,13 +18,14 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
+from starlette.responses import Response
 
 from . import audit
 from .config import settings
 from .corpus import load_precedents, load_sops, retrieve
 from .engine import decide
 from .llm import generate
-from .logging_setup import get_logger
+from .logging_setup import configure_logging, get_logger
 from .schemas import Citation, DecisionResponse, OpsFeedEvent, VolunteerReport
 from .simulator import feed_for, venue_state
 from .venues import VENUES, get_venue
@@ -42,21 +44,29 @@ SECURITY_HEADERS = {
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Attach hardening headers to every response."""
 
-    async def dispatch(self, request: Request, call_next):  # type: ignore[no-untyped-def]
-        response = await call_next(request)
-        for k, v in SECURITY_HEADERS.items():
-            response.headers.setdefault(k, v)
+    async def dispatch(self, request: Request, call_next: Any) -> Response:
+        """Add the hardening headers to the outgoing response."""
+        response: Response = await call_next(request)
+        for key, value in SECURITY_HEADERS.items():
+            response.headers.setdefault(key, value)
         return response
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):  # noqa: ARG001 - signature required by FastAPI
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:  # noqa: ARG001 - required by FastAPI
+    """Initialise logging and the audit store before the app starts serving."""
+    configure_logging()
     audit.init_db()
+    logger.info(
+        "service ready | genai=%s | precedents=%d",
+        bool(settings.anthropic_api_key),
+        len(load_precedents()),
+    )
     yield
 
 
 app = FastAPI(
-    title="Micro-Megaphone",
+    title="Frontline Voice",
     version="1.0.0",
     description="Crowd de-escalation copilot for last-mile volunteers, FIFA World Cup 2026.",
     lifespan=lifespan,

@@ -12,7 +12,7 @@ from __future__ import annotations
 import json
 import re
 from functools import lru_cache
-from typing import Any
+from typing import Any, cast
 
 from .config import DATA_DIR, RetrievalWeights
 
@@ -28,14 +28,14 @@ def _tokens(text: str) -> set[str]:
 def load_precedents() -> list[dict[str, Any]]:
     """Load the curated precedent corpus, cached for the process lifetime."""
     with open(DATA_DIR / "precedent_corpus.json", encoding="utf-8") as fh:
-        return json.load(fh)["precedents"]
+        return cast(list[dict[str, Any]], json.load(fh)["precedents"])
 
 
 @lru_cache(maxsize=1)
 def load_sops() -> list[dict[str, Any]]:
     """Load the volunteer standard operating procedures."""
     with open(DATA_DIR / "sop_corpus.json", encoding="utf-8") as fh:
-        return json.load(fh)["sops"]
+        return cast(list[dict[str, Any]], json.load(fh)["sops"])
 
 
 @lru_cache(maxsize=1)
