@@ -37,6 +37,8 @@ SECURITY_HEADERS = {
 
 
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    """Attach hardening headers to every response."""
+
     async def dispatch(self, request: Request, call_next):  # type: ignore[no-untyped-def]
         response = await call_next(request)
         for k, v in SECURITY_HEADERS.items():
@@ -67,6 +69,8 @@ app.add_middleware(
 
 
 class DecideRequest(BaseModel):
+    """One volunteer report plus any operations feed to reason over."""
+
     report: VolunteerReport
     feed: list[OpsFeedEvent] = Field(default_factory=list)
     free_text: str = ""
@@ -75,6 +79,7 @@ class DecideRequest(BaseModel):
 
 @app.get("/api/health")
 def health() -> dict[str, Any]:
+    """Report service status and which engine will answer a request."""
     return {
         "status": "ok",
         "genai_configured": bool(settings.anthropic_api_key),
@@ -86,6 +91,7 @@ def health() -> dict[str, Any]:
 
 @app.get("/api/venues")
 def venues() -> list[dict[str, Any]]:
+    """Return the venue topology used by the map and the location picker."""
     return [
         {
             "id": v.id,
@@ -98,18 +104,8 @@ def venues() -> list[dict[str, Any]]:
     ]
 
 
-@app.post("/api/decide", response_model=DecisionResponse)
-def decide_endpoint(req: DecideRequest) -> DecisionResponse:
-    try:
-        facts = decide(req.report, req.feed, heat_warning=req.heat_warning)
-    except ValueError as exc:
-        raise HTTPException(status_code=422, detail=str(exc)) from exc
-
-    hits = retrieve(facts.status.value, req.report.crowd_mood.value, req.report.phase.value, req.free_text)
-    precedents = [p for p, _ in hits]
-    output, engine, model, violations, ms = generate(facts, precedents, req.free_text)
-
-    citations = [
+def _to_citations(hits: list[tuple[dict[str, Any], float]]) -> list[Citation]:
+    return [
         Citation(
             id=p["id"],
             title=p["title"],
@@ -122,10 +118,25 @@ def decide_endpoint(req: DecideRequest) -> DecisionResponse:
         )
         for p, score in hits
     ]
+
+
+@app.post("/api/decide", response_model=DecisionResponse)
+def decide_endpoint(req: DecideRequest) -> DecisionResponse:
+    """Resolve facts deterministically, ground them, phrase them, and log them."""
+    try:
+        facts = decide(req.report, req.feed, heat_warning=req.heat_warning)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    hits = retrieve(
+        facts.status.value, req.report.crowd_mood.value, req.report.phase.value, req.free_text
+    )
+    output, engine, model, violations, ms = generate(facts, [p for p, _ in hits], req.free_text)
+
     response = DecisionResponse(
         facts=facts,
         output=output,
-        citations=citations,
+        citations=_to_citations(hits),
         engine=engine,
         model=model,
         latency_ms=ms,
@@ -146,6 +157,7 @@ def venue_state_endpoint(venue_id: str) -> dict[str, Any]:
 
 @app.get("/api/venue-feed/{venue_id}")
 def venue_feed_endpoint(venue_id: str) -> list[dict[str, Any]]:
+    """Return the simulated feed as ops events for the decision endpoint."""
     try:
         return feed_for(venue_id)
     except ValueError as exc:
@@ -172,6 +184,7 @@ def upload_feed(events: list[OpsFeedEvent]) -> dict[str, Any]:
 
 @app.get("/api/audit")
 def audit_log(limit: int = 25) -> list[dict[str, Any]]:
+    """Return the most recent recorded decisions."""
     return audit.recent(limit)
 
 
@@ -181,4 +194,5 @@ if STATIC_DIR.is_dir():
 
     @app.get("/", include_in_schema=False)
     def index() -> FileResponse:
+        """Serve the single-page volunteer interface."""
         return FileResponse(STATIC_DIR / "index.html")

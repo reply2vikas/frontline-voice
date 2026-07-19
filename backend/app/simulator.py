@@ -59,49 +59,65 @@ def bucket(now: float | None = None, seconds: int = 45) -> int:
     return int((now if now is not None else time.time()) // seconds)
 
 
+def _zone_status(venue_id: str, zone: Any, b: str) -> OpsStatus:
+    """Operational zones vary; welfare and medical points are always available."""
+    if zone.kind == "gate":
+        return _weighted(GATE_STATES, _hash_unit(venue_id, zone.id, b))
+    if zone.kind == "transit":
+        return _weighted(TRANSIT_STATES, _hash_unit(venue_id, zone.id, b, "t"))
+    return OpsStatus.OPEN
+
+
+def _load_factor(status: OpsStatus, base: float) -> float:
+    """Pressure statuses imply a crowded zone; a closure implies a very full one."""
+    if status in (OpsStatus.SURGE, OpsStatus.STATIC_QUEUE, OpsStatus.CONGESTED):
+        return 0.72 + base * 0.27
+    if status is OpsStatus.CLOSED:
+        return 0.88 + base * 0.11
+    return base * 0.65
+
+
+def _zone_snapshot(venue_id: str, zone: Any, b: str) -> dict[str, Any]:
+    status = _zone_status(venue_id, zone, b)
+    occupancy = 0
+    if zone.capacity:
+        factor = _load_factor(status, _hash_unit(venue_id, zone.id, b, "load"))
+        occupancy = int(zone.capacity * factor)
+    return {
+        "id": zone.id,
+        "name": zone.name,
+        "kind": zone.kind,
+        "status": status.value,
+        "occupancy": occupancy,
+        "capacity": zone.capacity,
+        "load_pct": round(occupancy / zone.capacity * 100) if zone.capacity else 0,
+        "step_free": zone.step_free,
+        "shaded": zone.shaded,
+    }
+
+
+def _summarise(zones: list[dict[str, Any]]) -> dict[str, Any]:
+    gates = [z for z in zones if z["kind"] == "gate"]
+    open_gates = sum(1 for z in gates if z["status"] == OpsStatus.OPEN.value)
+    return {
+        "gates_total": len(gates),
+        "gates_open": open_gates,
+        "gates_impaired": len(gates) - open_gates,
+        "peak_load_pct": max((z["load_pct"] for z in gates), default=0),
+    }
+
+
 def venue_state(venue_id: str, now: float | None = None) -> dict[str, Any]:
+    """Full simulated state for one venue at the current time bucket."""
     venue: Venue | None = get_venue(venue_id)
     if venue is None:
         raise ValueError(f"unknown venue: {venue_id}")
 
     b = str(bucket(now))
-    zones: list[dict[str, Any]] = []
-    for zone in venue.zones.values():
-        if zone.kind == "gate":
-            status = _weighted(GATE_STATES, _hash_unit(venue_id, zone.id, b))
-        elif zone.kind == "transit":
-            status = _weighted(TRANSIT_STATES, _hash_unit(venue_id, zone.id, b, "t"))
-        else:
-            status = OpsStatus.OPEN
-
-        if zone.capacity:
-            load = _hash_unit(venue_id, zone.id, b, "load")
-            if status in (OpsStatus.SURGE, OpsStatus.STATIC_QUEUE, OpsStatus.CONGESTED):
-                load = 0.72 + load * 0.27
-            elif status == OpsStatus.CLOSED:
-                load = 0.88 + load * 0.11
-            else:
-                load = load * 0.65
-            occupancy = int(zone.capacity * load)
-        else:
-            occupancy = 0
-
-        zones.append(
-            {
-                "id": zone.id,
-                "name": zone.name,
-                "kind": zone.kind,
-                "status": status.value,
-                "occupancy": occupancy,
-                "capacity": zone.capacity,
-                "load_pct": round(occupancy / zone.capacity * 100) if zone.capacity else 0,
-                "step_free": zone.step_free,
-                "shaded": zone.shaded,
-            }
-        )
-
-    zones.sort(key=lambda z: (z["kind"], z["id"]))
-    gates = [z for z in zones if z["kind"] == "gate"]
+    zones = sorted(
+        (_zone_snapshot(venue_id, z, b) for z in venue.zones.values()),
+        key=lambda z: (z["kind"], z["id"]),
+    )
     return {
         "venue_id": venue.id,
         "venue_name": venue.name,
@@ -109,12 +125,7 @@ def venue_state(venue_id: str, now: float | None = None) -> dict[str, Any]:
         "bucket": int(b),
         "simulated": True,
         "zones": zones,
-        "summary": {
-            "gates_total": len(gates),
-            "gates_open": sum(1 for z in gates if z["status"] == OpsStatus.OPEN.value),
-            "gates_impaired": sum(1 for z in gates if z["status"] != OpsStatus.OPEN.value),
-            "peak_load_pct": max((z["load_pct"] for z in gates), default=0),
-        },
+        "summary": _summarise(zones),
     }
 
 

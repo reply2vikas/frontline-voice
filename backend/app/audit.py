@@ -49,12 +49,14 @@ def _connect(db_path: str | None = None) -> sqlite3.Connection:
 
 
 def init_db(db_path: str | None = None) -> None:
+    """Create the decisions table if it does not yet exist."""
     with closing(_connect(db_path)) as conn:
         conn.executescript(SCHEMA)
         conn.commit()
 
 
 def record(response: Any, db_path: str | None = None) -> int:
+    """Append one decision to the audit log and return its row id."""
     with closing(_connect(db_path)) as conn:
         cur = conn.execute(
             """INSERT INTO decisions
@@ -82,6 +84,7 @@ def record(response: Any, db_path: str | None = None) -> int:
 
 
 def recent(limit: int = 25, db_path: str | None = None) -> list[dict[str, Any]]:
+    """Return the most recent decisions, newest first."""
     with closing(_connect(db_path)) as conn:
         rows = conn.execute(
             """SELECT id, ts, venue_id, zone_id, status, sop_id, severity,

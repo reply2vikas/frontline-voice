@@ -50,9 +50,9 @@ Return ONLY a JSON object, no prose and no code fences, matching exactly:
  "referenced_zone_ids": [str]}"""
 
 
-def build_user_prompt(facts: DecisionFacts, precedents: list[dict[str, Any]], free_text: str = "") -> str:
+def _context_blocks(facts: DecisionFacts) -> list[str]:
     policy = load_policy()
-    blocks = [
+    return [
         "<facts>",
         json.dumps(facts.model_dump(mode="json"), indent=2),
         "</facts>",
@@ -69,24 +69,36 @@ def build_user_prompt(facts: DecisionFacts, precedents: list[dict[str, Any]], fr
         json.dumps(policy["register_policy"], indent=2),
         "</register_policy>",
     ]
-    if precedents:
-        cited = [
-            {
-                "id": p["id"],
-                "title": p["title"],
-                "event": p["event"],
-                "finding": p["official_finding"],
-                "volunteer_relevance": p["volunteer_relevance"],
-                "evidence_tier": p["evidence_tier"],
-            }
-            for p in precedents
-        ]
-        blocks += [
-            "<precedents>",
-            json.dumps(cited, indent=2),
-            "</precedents>",
-            "Where a precedent genuinely supports the recommendation, reference it by id in one rationale line.",
-        ]
+
+
+def _precedent_blocks(precedents: list[dict[str, Any]]) -> list[str]:
+    if not precedents:
+        return []
+    cited = [
+        {
+            "id": p["id"],
+            "title": p["title"],
+            "event": p["event"],
+            "finding": p["official_finding"],
+            "volunteer_relevance": p["volunteer_relevance"],
+            "evidence_tier": p["evidence_tier"],
+        }
+        for p in precedents
+    ]
+    return [
+        "<precedents>",
+        json.dumps(cited, indent=2),
+        "</precedents>",
+        "Where a precedent genuinely supports the recommendation, reference it by id "
+        "in one rationale line.",
+    ]
+
+
+def build_user_prompt(
+    facts: DecisionFacts, precedents: list[dict[str, Any]], free_text: str = ""
+) -> str:
+    """Untrusted text is wrapped as data and never merged into the instructions."""
+    blocks = _context_blocks(facts) + _precedent_blocks(precedents)
     if free_text:
         blocks += ["<untrusted_text>", sanitize_free_text(free_text), "</untrusted_text>"]
     return "\n".join(blocks)
@@ -104,45 +116,57 @@ def _parse(raw: str) -> GenAIOutput:
     return GenAIOutput.model_validate_json(txt[start : end + 1])
 
 
+def _request(
+    facts: DecisionFacts, precedents: list[dict[str, Any]], free_text: str, timeout: float
+) -> str:
+    """Call the model and return its raw text. Raises on any transport failure."""
+    resp = httpx.post(
+        "https://api.anthropic.com/v1/messages",
+        headers={
+            "x-api-key": settings.anthropic_api_key or "",
+            "anthropic-version": "2023-06-01",
+            "content-type": "application/json",
+        },
+        json={
+            "model": settings.anthropic_model,
+            "max_tokens": 1500,
+            "system": SYSTEM_PROMPT,
+            "messages": [
+                {"role": "user", "content": build_user_prompt(facts, precedents, free_text)}
+            ],
+        },
+        timeout=timeout,
+    )
+    resp.raise_for_status()
+    payload = resp.json()
+    return "".join(b.get("text", "") for b in payload.get("content", []) if b.get("type") == "text")
+
+
 def generate(
-    facts: DecisionFacts, precedents: list[dict[str, Any]], free_text: str = "", timeout: float = 20.0
+    facts: DecisionFacts,
+    precedents: list[dict[str, Any]],
+    free_text: str = "",
+    timeout: float = 20.0,
 ) -> tuple[GenAIOutput, Literal["genai", "offline_template"], str | None, list[str], int]:
     """Returns (output, engine, model, guard_violations, latency_ms).
 
-    Never raises: every failure path degrades to the deterministic engine.
+    Never raises: every failure path degrades to the deterministic engine, so a
+    credential or network fault costs wording quality and never availability.
     """
     started = time.perf_counter()
-    allowed = set(facts.allowed_zone_ids)
+
+    def elapsed() -> int:
+        return int((time.perf_counter() - started) * 1000)
 
     if not settings.anthropic_api_key:
-        out = build_offline_output(facts)
-        return out, "offline_template", None, [], int((time.perf_counter() - started) * 1000)
+        return build_offline_output(facts), "offline_template", None, [], elapsed()
 
     try:
-        resp = httpx.post(
-            "https://api.anthropic.com/v1/messages",
-            headers={
-                "x-api-key": settings.anthropic_api_key,
-                "anthropic-version": "2023-06-01",
-                "content-type": "application/json",
-            },
-            json={
-                "model": settings.anthropic_model,
-                "max_tokens": 1500,
-                "system": SYSTEM_PROMPT,
-                "messages": [{"role": "user", "content": build_user_prompt(facts, precedents, free_text)}],
-            },
-            timeout=timeout,
-        )
-        resp.raise_for_status()
-        payload = resp.json()
-        text = "".join(b.get("text", "") for b in payload.get("content", []) if b.get("type") == "text")
-        out = _parse(text)
-        violations = guard(out, allowed)
-        if violations:
-            fallback = build_offline_output(facts)
-            return fallback, "offline_template", None, violations, int((time.perf_counter() - started) * 1000)
-        return out, "genai", settings.anthropic_model, [], int((time.perf_counter() - started) * 1000)
+        output = _parse(_request(facts, precedents, free_text, timeout))
     except Exception:
-        out = build_offline_output(facts)
-        return out, "offline_template", None, [], int((time.perf_counter() - started) * 1000)
+        return build_offline_output(facts), "offline_template", None, [], elapsed()
+
+    violations = guard(output, set(facts.allowed_zone_ids))
+    if violations:
+        return build_offline_output(facts), "offline_template", None, violations, elapsed()
+    return output, "genai", settings.anthropic_model, [], elapsed()

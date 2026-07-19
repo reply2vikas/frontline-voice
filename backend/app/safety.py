@@ -51,7 +51,10 @@ PROHIBITED_PATTERNS: list[tuple[str, re.Pattern[str]]] = [
     ("blames the crowd", re.compile(r"\b(your fault|you are to blame|because of you all)\b", re.I)),
     (
         "makes a medical judgement",
-        re.compile(r"\b(you are (not )?(having|experiencing) a|diagnos\w+|it'?s? just dehydration)\b", re.I),
+        re.compile(
+            r"\b(you are (not )?(having|experiencing) a|diagnos\w+|it'?s? just dehydration)\b",
+            re.I,
+        ),
     ),
 ]
 
@@ -74,6 +77,7 @@ def find_illegal_zone_refs(output: GenAIOutput, allowed: set[str]) -> list[str]:
 
 
 def find_prohibited_actions(output: GenAIOutput) -> list[str]:
+    """Return labels for any action the volunteer has no authority to take."""
     blob = " ".join(
         [
             output.recommendation,

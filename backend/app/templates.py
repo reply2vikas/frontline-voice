@@ -41,15 +41,33 @@ _OPENERS = {
 }
 
 _REDIRECT = {
-    "en": "This entrance is on hold. The nearest open entrance is {zone}, about {mins} minutes on foot.",
-    "es": "Esta entrada está detenida. La entrada abierta más cercana es {zone}, a unos {mins} minutos caminando.",
-    "fr": "Cette entrée est suspendue. L'entrée ouverte la plus proche est {zone}, à environ {mins} minutes à pied.",
+    "en": (
+        "This entrance is on hold. The nearest open entrance is {zone}, "
+        "about {mins} minutes on foot."
+    ),
+    "es": (
+        "Esta entrada está detenida. La entrada abierta más cercana es {zone}, "
+        "a unos {mins} minutos caminando."
+    ),
+    "fr": (
+        "Cette entrée est suspendue. L'entrée ouverte la plus proche est {zone}, "
+        "à environ {mins} minutes à pied."
+    ),
 }
 
 _NO_ALT = {
-    "en": "This entrance is on hold and we are waiting on an update. Please stay where you are and keep space around you.",
-    "es": "Esta entrada está detenida y esperamos una actualización. Permanezca donde está y mantenga espacio a su alrededor.",
-    "fr": "Cette entrée est suspendue et nous attendons une mise à jour. Restez où vous êtes et gardez de l'espace autour de vous.",
+    "en": (
+        "This entrance is on hold and we are waiting on an update. "
+        "Please stay where you are and keep space around you."
+    ),
+    "es": (
+        "Esta entrada está detenida y esperamos una actualización. "
+        "Permanezca donde está y mantenga espacio a su alrededor."
+    ),
+    "fr": (
+        "Cette entrée est suspendue et nous attendons une mise à jour. "
+        "Restez où vous êtes et gardez de l'espace autour de vous."
+    ),
 }
 
 _WELFARE = {
@@ -65,9 +83,18 @@ _UPDATE = {
 }
 
 _OUT_OF_SCOPE = {
-    "en": "That decision sits with the operations team. I have passed it on. In the meantime I can direct you to {zone}.",
-    "es": "Esa decisión corresponde al equipo de operaciones. Ya la he transmitido. Mientras tanto puedo indicarle {zone}.",
-    "fr": "Cette décision relève de l'équipe opérationnelle. Je l'ai transmise. En attendant, je peux vous indiquer {zone}.",
+    "en": (
+        "That decision sits with the operations team. I have passed it on. "
+        "In the meantime I can direct you to {zone}."
+    ),
+    "es": (
+        "Esa decisión corresponde al equipo de operaciones. Ya la he transmitido. "
+        "Mientras tanto puedo indicarle {zone}."
+    ),
+    "fr": (
+        "Cette décision relève de l'équipe opérationnelle. Je l'ai transmise. "
+        "En attendant, je peux vous indiquer {zone}."
+    ),
 }
 
 LANGS: tuple[Literal["en", "es", "fr"], ...] = ("en", "es", "fr")
@@ -82,63 +109,90 @@ def _zone_label(facts: DecisionFacts) -> str:
     return facts.recommended_zone_name or "the next open entrance"
 
 
-def build_offline_output(facts: DecisionFacts) -> GenAIOutput:
-    """Compose a complete, safe response using only resolved facts."""
-    announcements: list[Announcement] = []
-    for lang in LANGS:
-        parts = [_OPENERS[facts.register_mode][lang]]
-        if facts.sop_id == "SOP-012":
-            parts.append(_OUT_OF_SCOPE[lang].format(zone=_zone_label(facts)))
-        elif facts.recommended_zone_name and facts.walk_time_min is not None:
-            parts.append(_REDIRECT[lang].format(zone=facts.recommended_zone_name, mins=facts.walk_time_min))
-        else:
-            parts.append(_NO_ALT[lang])
-        if facts.heat_active and facts.welfare_zone_id:
-            parts.append(_WELFARE[lang].format(zone=_human(facts.welfare_zone_id)))
-        parts.append(_UPDATE[lang])
-        announcements.append(Announcement(lang=lang, text=" ".join(parts)))
+def _announcement_body(facts: DecisionFacts, lang: str) -> list[str]:
+    """The situation-specific sentence, chosen by the governing procedure."""
+    if facts.sop_id == "SOP-012":
+        return [_OUT_OF_SCOPE[lang].format(zone=_zone_label(facts))]
+    if facts.recommended_zone_name and facts.walk_time_min is not None:
+        return [_REDIRECT[lang].format(zone=facts.recommended_zone_name, mins=facts.walk_time_min)]
+    return [_NO_ALT[lang]]
 
-    rationale = [
-        f"Status at {facts.origin_zone_name} is {facts.status.value}; governing procedure is {facts.sop_id} ({facts.sop_title}).",
+
+def _compose_announcement(facts: DecisionFacts, lang: str) -> Announcement:
+    parts = [_OPENERS[facts.register_mode][lang], *_announcement_body(facts, lang)]
+    if facts.heat_active and facts.welfare_zone_id:
+        parts.append(_WELFARE[lang].format(zone=_human(facts.welfare_zone_id)))
+    parts.append(_UPDATE[lang])
+    return Announcement(lang=lang, text=" ".join(parts))  # type: ignore[arg-type]
+
+
+def _build_rationale(facts: DecisionFacts) -> list[str]:
+    lines = [
+        f"Status at {facts.origin_zone_name} is {facts.status.value}; "
+        f"governing procedure is {facts.sop_id} ({facts.sop_title}).",
         f"Severity assessed as {facts.severity} from reported conditions.",
     ]
     if facts.recommended_zone_name:
-        rationale.append(
-            f"{facts.recommended_zone_name} is the closest destination that is open and below the capacity threshold, about {facts.walk_time_min} minutes away."
+        lines.append(
+            f"{facts.recommended_zone_name} is the closest destination that is open and below "
+            f"the capacity threshold, about {facts.walk_time_min} minutes away."
         )
     if facts.heat_active:
-        rationale.append("Heat conditions are active, so welfare messaging is included by default.")
+        lines.append("Heat conditions are active, so welfare messaging is included by default.")
     if facts.escalate:
-        rationale.append("Escalation triggered: " + "; ".join(facts.escalate_reasons) + ".")
+        lines.append("Escalation triggered: " + "; ".join(facts.escalate_reasons) + ".")
+    return lines[:5]
 
-    alternatives = [
+
+def _build_alternatives(facts: DecisionFacts) -> list[Alternative]:
+    options = [
         Alternative(
-            action="Hold arrivals at the current standing point and wait for the operations update.",
-            tradeoff="Avoids sending people on a walk that may prove unnecessary, but extends standing time, which is the main driver of harm in a static queue.",
+            action=(
+                "Hold arrivals at the current standing point and wait for the " "operations update."
+            ),
+            tradeoff=(
+                "Avoids sending people on a walk that may prove unnecessary, but extends standing "
+                "time, which is the main driver of harm in a static queue."
+            ),
         )
     ]
     if facts.welfare_zone_id:
-        alternatives.append(
+        options.append(
             Alternative(
-                action=f"Direct families, older people and anyone unwell to {_human(facts.welfare_zone_id)} first.",
-                tradeoff="Splits the queue and takes longer to communicate, but removes the people least able to tolerate a long wait.",
+                action=(
+                    f"Direct families, older people and anyone unwell to "
+                    f"{_human(facts.welfare_zone_id)} first."
+                ),
+                tradeoff=(
+                    "Splits the queue and takes longer to communicate, but removes the people "
+                    "least able to tolerate a long wait."
+                ),
             )
         )
+    return options[:3]
 
-    recommendation = (
-        f"Redirect arriving people from {facts.origin_zone_name} to {facts.recommended_zone_name} "
-        f"(about {facts.walk_time_min} minutes on foot) and explain the hold."
-        if facts.recommended_zone_name
-        else f"Hold position at {facts.origin_zone_name}, explain that an update is coming, and report the queue state upward."
+
+def _build_recommendation(facts: DecisionFacts) -> str:
+    if facts.recommended_zone_name:
+        return (
+            f"Redirect arriving people from {facts.origin_zone_name} to "
+            f"{facts.recommended_zone_name} (about {facts.walk_time_min} minutes on foot) "
+            "and explain the hold."
+        )
+    return (
+        f"Hold position at {facts.origin_zone_name}, explain that an update is coming, "
+        "and report the queue state upward."
     )
 
+
+def build_offline_output(facts: DecisionFacts) -> GenAIOutput:
+    """Compose a complete, safe response using only resolved facts."""
+    referenced = [facts.origin_zone_id, facts.recommended_zone_id, facts.welfare_zone_id]
     return GenAIOutput(
-        recommendation=recommendation,
-        rationale=rationale[:5],
+        recommendation=_build_recommendation(facts),
+        rationale=_build_rationale(facts),
         confidence="high" if facts.recommended_zone_id else "medium",
-        alternatives=alternatives[:3],
-        announcements=announcements,
-        referenced_zone_ids=[
-            z for z in [facts.origin_zone_id, facts.recommended_zone_id, facts.welfare_zone_id] if z
-        ],
+        alternatives=_build_alternatives(facts),
+        announcements=[_compose_announcement(facts, lang) for lang in LANGS],
+        referenced_zone_ids=[z for z in referenced if z],
     )

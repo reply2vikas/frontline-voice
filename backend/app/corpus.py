@@ -20,23 +20,27 @@ _TOKEN = re.compile(r"[a-z0-9_]+")
 
 
 def _tokens(text: str) -> set[str]:
+    """Lowercase word tokens used for free-text overlap scoring."""
     return set(_TOKEN.findall(text.lower()))
 
 
 @lru_cache(maxsize=1)
 def load_precedents() -> list[dict[str, Any]]:
+    """Load the curated precedent corpus, cached for the process lifetime."""
     with open(DATA_DIR / "precedent_corpus.json", encoding="utf-8") as fh:
         return json.load(fh)["precedents"]
 
 
 @lru_cache(maxsize=1)
 def load_sops() -> list[dict[str, Any]]:
+    """Load the volunteer standard operating procedures."""
     with open(DATA_DIR / "sop_corpus.json", encoding="utf-8") as fh:
         return json.load(fh)["sops"]
 
 
 @lru_cache(maxsize=1)
 def load_policy() -> dict[str, Any]:
+    """Load the hard rules and register policy that govern all phrasing."""
     with open(DATA_DIR / "sop_corpus.json", encoding="utf-8") as fh:
         doc = json.load(fh)
     return {"hard_rules": doc["hard_rules"], "register_policy": doc["register_policy"]}
@@ -44,6 +48,7 @@ def load_policy() -> dict[str, Any]:
 
 @lru_cache(maxsize=1)
 def load_authority() -> dict[str, list[str]]:
+    """Load the volunteer authority boundary: what they may and may not do."""
     with open(DATA_DIR / "precedent_corpus.json", encoding="utf-8") as fh:
         doc = json.load(fh)
     ab = doc["authority_boundary"]
@@ -51,10 +56,13 @@ def load_authority() -> dict[str, list[str]]:
 
 
 def get_sop(sop_id: str) -> dict[str, Any] | None:
+    """Return one SOP by id, or None when the id is unknown."""
     return next((s for s in load_sops() if s["id"] == sop_id), None)
 
 
-def score_precedent(p: dict[str, Any], status: str, mood: str, phase: str, extra: str = "") -> float:
+def score_precedent(
+    p: dict[str, Any], status: str, mood: str, phase: str, extra: str = ""
+) -> float:
     """Transparent additive scoring. Trigger matches dominate; free-text overlap
     breaks ties. Deliberately explainable so a low score can be justified."""
     trig = p.get("retrieval_triggers", {})
@@ -83,6 +91,7 @@ def score_precedent(p: dict[str, Any], status: str, mood: str, phase: str, extra
 def retrieve(
     status: str, mood: str, phase: str, extra: str = "", k: int = 3
 ) -> list[tuple[dict[str, Any], float]]:
+    """Return the top-k precedents relevant to the situation, each with its score."""
     scored = [(p, score_precedent(p, status, mood, phase, extra)) for p in load_precedents()]
     scored = [(p, s) for p, s in scored if s > 0]
     scored.sort(key=lambda t: (-t[1], t[0]["id"]))

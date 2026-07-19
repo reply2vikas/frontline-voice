@@ -36,6 +36,7 @@ class Zone:
         self.shaded = shaded
 
     def walk_time_to(self, other: str) -> int:
+        """Walking minutes from this zone to another, defaulting to 8 when unmapped."""
         return self.walk_times.get(other, 8)
 
 
@@ -48,12 +49,15 @@ class Venue:
         self.zones = {z.id: z for z in zones}
 
     def zone(self, zone_id: str) -> Zone | None:
+        """Return a zone by id, or None when it does not exist at this venue."""
         return self.zones.get(zone_id)
 
     def gates(self) -> list[Zone]:
+        """All entry gates at this venue."""
         return [z for z in self.zones.values() if z.kind == "gate"]
 
     def of_kind(self, kind: ZoneKind) -> list[Zone]:
+        """All zones of a given kind (gate, transit, welfare, medical)."""
         return [z for z in self.zones.values() if z.kind == kind]
 
 
@@ -64,14 +68,18 @@ VENUES: dict[str, Venue] = {
         city="Miami Gardens",
         heat_risk="extreme",
         zones=[
-            Zone("GATE_1", "Gate 1 (North)", "gate", 6000, {"GATE_2": 4, "GATE_3": 7, "GATE_4": 11}),
+            Zone(
+                "GATE_1", "Gate 1 (North)", "gate", 6000, {"GATE_2": 4, "GATE_3": 7, "GATE_4": 11}
+            ),
             Zone("GATE_2", "Gate 2 (East)", "gate", 5000, {"GATE_1": 4, "GATE_3": 5, "GATE_4": 8}),
             Zone("GATE_3", "Gate 3 (South)", "gate", 5500, {"GATE_1": 7, "GATE_2": 5, "GATE_4": 5}),
             Zone("GATE_4", "Gate 4 (West)", "gate", 4500, {"GATE_1": 11, "GATE_2": 8, "GATE_3": 5}),
             Zone("TRANSIT_N", "North Shuttle Plaza", "transit", 9000, {"GATE_1": 5}),
             Zone("TRANSIT_S", "South Rideshare Pickup", "transit", 7000, {"GATE_3": 6}),
             Zone("WELFARE_A", "Shaded Rest Area A", "welfare", 800, {"GATE_2": 3}, shaded=True),
-            Zone("WELFARE_B", "Cooling & Water Point B", "welfare", 600, {"GATE_3": 4}, shaded=True),
+            Zone(
+                "WELFARE_B", "Cooling & Water Point B", "welfare", 600, {"GATE_3": 4}, shaded=True
+            ),
             Zone("QUIET_1", "Sensory Quiet Room", "welfare", 40, {"GATE_2": 6}, shaded=True),
             Zone("MEDICAL_1", "Medical Post 1", "medical", 60, {"GATE_1": 4, "GATE_3": 6}),
         ],
@@ -111,9 +119,11 @@ VENUES: dict[str, Venue] = {
 
 
 def get_venue(venue_id: str) -> Venue | None:
+    """Return a venue by id, or None when the id is unknown."""
     return VENUES.get(venue_id)
 
 
 def legal_zone_ids(venue_id: str) -> set[str]:
+    """Every zone id that exists at a venue; the closed set for safety checks."""
     v = get_venue(venue_id)
     return set(v.zones.keys()) if v else set()
