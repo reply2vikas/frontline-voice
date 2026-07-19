@@ -129,6 +129,9 @@ Ops feed JSON  +  Volunteer 3-tap input (location - issue - crowd mood)
  AUDIT LOG + OPERATIONAL LOG - every decision reconstructable, every degradation explained
 ```
 
+<img width="1680" height="1049" alt="map" src="https://github.com/user-attachments/assets/1271a5c7-0cfb-44af-8d18-2e5043964eb4" />
+
+
 The model can degrade the *wording* of an announcement. It can never change which gate a volunteer sends
 four thousand people toward.
 
@@ -253,6 +256,9 @@ audited with `pip-audit`, and secrets read only from the environment.
 ---
 
 ## Accessibility
+
+<img width="1680" height="1050" alt="taps" src="https://github.com/user-attachments/assets/e2bf538f-494c-47a2-914e-da65679b699e" />
+
 
 Targeted at **WCAG 2.1 AAA**, and enforced in CI rather than asserted.
 
