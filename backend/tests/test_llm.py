@@ -17,7 +17,9 @@ from app.schemas import OpsFeedEvent, VolunteerReport
 
 @pytest.fixture
 def facts():
-    report = VolunteerReport(venue_id="MIA", zone_id="GATE_3", issue="gate_closed", crowd_mood="hostile")
+    report = VolunteerReport(
+        venue_id="MIA", zone_id="GATE_3", issue="gate_closed", crowd_mood="hostile"
+    )
     return decide(report, [OpsFeedEvent(zone_id="GATE_3", status="CLOSED")])
 
 
@@ -28,8 +30,14 @@ VALID = {
     "alternatives": [{"action": "Hold position", "tradeoff": "Longer standing time"}],
     "announcements": [
         {"lang": "en", "text": "Thank you for your patience. The nearest open entrance is GATE_2."},
-        {"lang": "es", "text": "Apreciamos su paciencia. La entrada abierta mas cercana es GATE_2."},
-        {"lang": "fr", "text": "Nous vous remercions de votre patience. L'entree ouverte est GATE_2."},
+        {
+            "lang": "es",
+            "text": "Apreciamos su paciencia. La entrada abierta mas cercana es GATE_2.",
+        },
+        {
+            "lang": "fr",
+            "text": "Nous vous remercions de votre patience. L'entree ouverte est GATE_2.",
+        },
     ],
     "referenced_zone_ids": ["GATE_2"],
 }
@@ -94,7 +102,9 @@ def test_prohibited_action_falls_back(facts, monkeypatch):
     assert any("prohibited_action" in v for v in violations)
 
 
-@pytest.mark.parametrize("body", ["not json at all", "{ broken", json.dumps({"recommendation": "x"})])
+@pytest.mark.parametrize(
+    "body", ["not json at all", "{ broken", json.dumps({"recommendation": "x"})]
+)
 def test_malformed_or_incomplete_response_falls_back(facts, monkeypatch, body):
     stub(monkeypatch, body)
     _, engine, _, _, _ = llm.generate(facts, [])

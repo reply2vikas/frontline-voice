@@ -40,7 +40,8 @@ def test_zone_over_capacity_threshold_is_excluded():
 
 def test_no_alternatives_available_escalates_and_recommends_hold():
     feed = [
-        OpsFeedEvent(zone_id=z, status=OpsStatus.CLOSED) for z in ("GATE_1", "GATE_2", "GATE_3", "GATE_4")
+        OpsFeedEvent(zone_id=z, status=OpsStatus.CLOSED)
+        for z in ("GATE_1", "GATE_2", "GATE_3", "GATE_4")
     ]
     facts = decide(report(), feed)
     assert facts.recommended_zone_id is None
@@ -100,9 +101,14 @@ def test_empty_feed_defaults_to_open_status():
 
 
 def test_unknown_status_routes_to_no_information_sop():
-    facts = decide(report(issue="no_information"), [OpsFeedEvent(zone_id="GATE_3", status=OpsStatus.UNKNOWN)])
+    facts = decide(
+        report(issue="no_information"), [OpsFeedEvent(zone_id="GATE_3", status=OpsStatus.UNKNOWN)]
+    )
     assert facts.sop_id == "SOP-011"
 
 
 def test_sop_selection_prefers_human_situation_over_status():
-    assert select_sop_id(report(issue="fan_distress", crowd_mood="hostile"), OpsStatus.SURGE) == "SOP-009"
+    assert (
+        select_sop_id(report(issue="fan_distress", crowd_mood="hostile"), OpsStatus.SURGE)
+        == "SOP-009"
+    )

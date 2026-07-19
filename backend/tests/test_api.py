@@ -12,7 +12,11 @@ def payload(**kw):
         "static_for_min": 15,
     }
     report.update(kw.pop("report", {}))
-    return {"report": report, "feed": kw.pop("feed", [{"zone_id": "GATE_3", "status": "CLOSED"}]), **kw}
+    return {
+        "report": report,
+        "feed": kw.pop("feed", [{"zone_id": "GATE_3", "status": "CLOSED"}]),
+        **kw,
+    }
 
 
 def test_health_reports_offline_engine_without_key(client):
@@ -84,14 +88,18 @@ def test_injection_in_free_text_does_not_break_the_response(client):
 
 
 def test_unknown_zone_is_rejected_with_422(client):
-    assert client.post("/api/decide", json=payload(report={"zone_id": "GATE_999"})).status_code == 422
+    assert (
+        client.post("/api/decide", json=payload(report={"zone_id": "GATE_999"})).status_code == 422
+    )
 
 
 def test_unknown_venue_is_rejected_with_422(client):
     assert client.post("/api/decide", json=payload(report={"venue_id": "ZZZ"})).status_code == 422
 
 
-@pytest.mark.parametrize("bad", [{"crowd_mood": "furious"}, {"issue": "nonsense"}, {"static_for_min": -5}])
+@pytest.mark.parametrize(
+    "bad", [{"crowd_mood": "furious"}, {"issue": "nonsense"}, {"static_for_min": -5}]
+)
 def test_schema_validation_rejects_bad_input(client, bad):
     assert client.post("/api/decide", json=payload(report=bad)).status_code == 422
 

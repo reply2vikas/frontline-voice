@@ -94,7 +94,9 @@ def test_retrieval_finds_expected_precedent(status, mood, phase, expected):
 
 
 def test_retrieval_hit_rate_gate():
-    hits = sum(1 for s, m, ph, exp in EVAL_CASES if exp in [p["id"] for p, _ in retrieve(s, m, ph, k=3)])
+    hits = sum(
+        1 for s, m, ph, exp in EVAL_CASES if exp in [p["id"] for p, _ in retrieve(s, m, ph, k=3)]
+    )
     rate = hits / len(EVAL_CASES)
     assert rate >= 0.85, f"retrieval hit-rate regressed to {rate:.0%}"
 

@@ -49,7 +49,9 @@ def test_summary_is_internally_consistent():
 
 def test_feed_contains_only_operational_zones():
     feed = feed_for("MIA", now=3)
-    kinds = {z["id"] for z in venue_state("MIA", now=3)["zones"] if z["kind"] in ("gate", "transit")}
+    kinds = {
+        z["id"] for z in venue_state("MIA", now=3)["zones"] if z["kind"] in ("gate", "transit")
+    }
     assert {e["zone_id"] for e in feed} == kinds
 
 
@@ -72,7 +74,9 @@ def test_simulated_feed_drives_a_real_decision():
 
     events = [OpsFeedEvent.model_validate(e) for e in feed_for("MIA", now=13)]
     facts = decide(
-        VolunteerReport(venue_id="MIA", zone_id="GATE_1", issue="gate_closed", crowd_mood="frustrated"),
+        VolunteerReport(
+            venue_id="MIA", zone_id="GATE_1", issue="gate_closed", crowd_mood="frustrated"
+        ),
         events,
     )
     assert facts.sop_id
