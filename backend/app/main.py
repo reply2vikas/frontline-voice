@@ -217,3 +217,16 @@ if STATIC_DIR.is_dir():
     def index() -> FileResponse:
         """Serve the single-page volunteer interface."""
         return FileResponse(STATIC_DIR / "index.html")
+
+    @app.get("/sw.js", include_in_schema=False)
+    def service_worker() -> FileResponse:
+        """Serve the worker from the root so its scope covers the whole app.
+
+        A worker served from /static/ could only control /static/, which would
+        leave the application shell uncached.
+        """
+        return FileResponse(
+            STATIC_DIR / "sw.js",
+            media_type="application/javascript",
+            headers={"Cache-Control": "no-cache"},
+        )

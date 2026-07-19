@@ -234,4 +234,14 @@ async function init(){
   wireTabs();
   $("f").onsubmit = submit;
 }
+/* Register the service worker so the shell survives a dropped connection.
+   Registration failure is non-fatal: the app works exactly as before without it. */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      /* offline shell unavailable; the app still functions online */
+    });
+  });
+}
+
 init();

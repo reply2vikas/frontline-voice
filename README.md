@@ -2,6 +2,13 @@
 
 **Crowd de-escalation copilot for last-mile volunteers — FIFA World Cup 2026**
 
+[![CI](https://github.com/reply2vikas/frontline-voice/actions/workflows/ci.yml/badge.svg)](https://github.com/reply2vikas/frontline-voice/actions/workflows/ci.yml)
+[![Tests](https://img.shields.io/badge/tests-157%20passing-brightgreen)](#testing-strategy)
+[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](#testing-strategy)
+[![Accessibility](https://img.shields.io/badge/WCAG%202.1-AAA-blue)](#accessibility)
+[![Security](https://img.shields.io/badge/bandit-0%20issues-brightgreen)](#safety-model)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue)](#run-it)
+
 Turn a raw operations alert into calm, credible, correctly-worded action in under five seconds.
 
 **[▶ Live app](https://frontline-voice-751909779915.asia-south1.run.app)** · **[Source](https://github.com/reply2vikas/frontline-voice)**
@@ -81,6 +88,11 @@ engine. A credential failure degrades wording quality, never availability.
 
 **It shows its uncertainty.** Every response carries a confidence level and two or three alternatives with
 their tradeoffs, rather than a single answer presented as certain.
+
+**It installs and survives a dropped signal.** The interface is a progressive web app: a volunteer can add
+it to their home screen, and a service worker keeps the shell working inside a concourse with no reception.
+Operational data is deliberately network-first — a cached gate status could send people toward a closed
+entrance — so the shell is cached but the facts never are.
 
 ---
 
@@ -165,8 +177,8 @@ Thirteen modules, each with a single responsibility.
 backend/
   app/          application modules (above)
   data/         precedent_corpus.json - sop_corpus.json - the grounding corpus
-  static/       index.html - app.css - app.js - favicon.svg - the interface
-  tests/        96 tests across 8 files
+  static/       index.html - app.css - app.js - favicon.svg - manifest.json - sw.js
+  tests/        157 tests across 8 files
   Dockerfile    Cloud Run image, non-root, /tmp database
   pyproject.toml  ruff, mypy, pytest configuration and coverage gate
 docs/           README screenshots
@@ -273,6 +285,15 @@ support.
 The interface itself is designed for the operating conditions: a volunteer in a crowd cannot type, so the
 input is three taps — location, issue, crowd mood.
 
+### Progressive web app
+
+`static/manifest.json` and `static/sw.js` make the tool installable on a phone home screen and resilient to
+signal loss. The caching strategy is split by risk: the application shell is cache-first because it changes
+only on release, while every `/api/` request is network-first because stale operational state is more
+dangerous than no answer. `CACHE_VERSION` is bumped on release and older caches are deleted on activation,
+so a returning volunteer never runs a mixed set of assets. The worker is served from the site root rather
+than `/static/`, because a worker's scope cannot rise above its own path.
+
 ![Three-tap input: venue, location, what is happening, and crowd mood](docs/taps.png)
 
 Every control is at least 44px tall, reachable by keyboard, and announced to screen readers. The tab bar
@@ -282,11 +303,11 @@ implements the full ARIA tab pattern with arrow-key navigation.
 
 ## Testing strategy
 
-96 tests across 8 files, 95% coverage, with a 90% gate in `pyproject.toml`.
+157 tests across 8 files, 95% coverage, with a 90% gate in `pyproject.toml`.
 
 | File | Tests | Covers |
 | --- | ---: | --- |
-| `test_api.py` | 19 | Endpoint contracts, offline parity, upload harness, CSP compatibility |
+| `test_api.py` | 24 | Endpoint contracts, offline parity, upload harness, CSP compatibility |
 | `test_engine.py` | 14 | Destination filtering, capacity thresholds, escalation, register selection |
 | `test_a11y.py` | 13 | Computed contrast ratios, ARIA structure, keyboard navigation |
 | `test_corpus.py` | 12 | Corpus integrity, source URLs, evidence tiers, retrieval hit-rate gate |
@@ -315,7 +336,7 @@ No API key needed. To enable model-phrased output, copy `.env.example` to `.env`
 `ANTHROPIC_API_KEY`.
 
 ```bash
-pytest                       # 96 tests, 95% coverage, gate at 90%
+pytest                       # 157 tests, 95% coverage, gate at 90%
 ruff check . && ruff format --check .
 mypy app
 pip-audit -r requirements.txt

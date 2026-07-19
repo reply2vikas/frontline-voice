@@ -1,6 +1,10 @@
 """API contract, offline parity, and the evaluator upload harness."""
 
+from pathlib import Path
+
 import pytest
+
+STATIC_DIR_FOR_TESTS = Path(__file__).resolve().parent.parent / "static"
 
 
 def payload(**kw):
@@ -167,3 +171,47 @@ def test_csp_allows_the_assets_the_page_actually_loads(client):
     csp = client.get("/").headers["content-security-policy"]
     assert "default-src 'self'" in csp
     assert "unsafe-inline" not in csp
+
+
+# --- Progressive web app -------------------------------------------------------
+# The worker must be served from the site root: one served from /static/ could
+# only control /static/, leaving the application shell uncached.
+
+
+def test_service_worker_served_from_root_scope(client):
+    r = client.get("/sw.js")
+    assert r.status_code == 200
+    assert "javascript" in r.headers["content-type"]
+    assert r.headers.get("cache-control") == "no-cache"
+
+
+def test_manifest_is_valid_and_complete(client):
+    import json
+
+    r = client.get("/static/manifest.json")
+    assert r.status_code == 200
+    m = json.loads(r.content)
+    for field in ("name", "short_name", "start_url", "display", "icons", "theme_color"):
+        assert m[field], field
+    assert m["display"] == "standalone"
+    assert m["icons"][0]["src"].startswith("/static/")
+
+
+def test_index_links_manifest_and_theme_colour(client):
+    html = client.get("/").text
+    assert 'rel="manifest"' in html
+    assert 'name="theme-color"' in html
+
+
+def test_worker_never_serves_stale_operational_data():
+    """API responses must be network-first; a cached gate status could send
+    people toward a closed entrance."""
+    sw = (STATIC_DIR_FOR_TESTS / "sw.js").read_text(encoding="utf-8")
+    assert '"/api/"' in sw or "'/api/'" in sw
+    assert "fetch(request).catch" in sw
+
+
+def test_worker_versions_its_cache():
+    sw = (STATIC_DIR_FOR_TESTS / "sw.js").read_text(encoding="utf-8")
+    assert "CACHE_VERSION" in sw
+    assert "caches.delete" in sw

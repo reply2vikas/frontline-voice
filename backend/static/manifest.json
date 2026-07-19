@@ -1,0 +1,21 @@
+{
+  "name": "Frontline Voice — Volunteer Crowd De-escalation Copilot",
+  "short_name": "Frontline Voice",
+  "description": "Turn a raw operations alert into calm, credible, correctly-worded action in under five seconds.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0b0e14",
+  "theme_color": "#0b0e14",
+  "lang": "en",
+  "categories": ["utilities", "productivity"],
+  "icons": [
+    {
+      "src": "/static/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
