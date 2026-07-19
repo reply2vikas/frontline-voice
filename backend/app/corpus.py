@@ -14,7 +14,7 @@ import re
 from functools import lru_cache
 from typing import Any
 
-from .config import DATA_DIR
+from .config import DATA_DIR, RetrievalWeights
 
 _TOKEN = re.compile(r"[a-z0-9_]+")
 
@@ -68,23 +68,26 @@ def score_precedent(
     trig = p.get("retrieval_triggers", {})
     score = 0.0
     if status in trig.get("status", []):
-        score += 3.0
+        score += RetrievalWeights.STATUS_MATCH
     if mood in trig.get("crowd_mood", []):
-        score += 2.0
+        score += RetrievalWeights.MOOD_MATCH
     if phase in trig.get("phase", []):
-        score += 1.0
+        score += RetrievalWeights.PHASE_MATCH
     if extra:
         blob = _tokens(
             " ".join([p.get("title", ""), p.get("what_happened", ""), " ".join(p.get("tags", []))])
         )
         overlap = len(blob & _tokens(extra))
-        score += min(overlap * 0.25, 1.5)
+        score += min(
+            overlap * RetrievalWeights.TEXT_OVERLAP_PER_TOKEN,
+            RetrievalWeights.TEXT_OVERLAP_CAP,
+        )
     # The evidence bonus is a tie-breaker between relevant precedents, never a
     # reason to surface an irrelevant one. Applying it unconditionally caused
     # official reports to score above zero on queries they had no bearing on,
     # which would cite a crush report during a routine situation.
     if score > 0 and p.get("evidence_tier") == "official_report":
-        score += 0.5
+        score += RetrievalWeights.EVIDENCE_BONUS
     return score
 
 

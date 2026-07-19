@@ -20,9 +20,12 @@ import httpx
 
 from .config import settings
 from .corpus import load_policy
+from .logging_setup import get_logger
 from .safety import guard, sanitize_free_text
 from .schemas import DecisionFacts, GenAIOutput
 from .templates import build_offline_output
+
+logger = get_logger("llm")
 
 SYSTEM_PROMPT = """You are the phrasing layer of a safety-critical copilot used by volunteers at FIFA World Cup 2026 stadiums.
 
@@ -159,14 +162,27 @@ def generate(
         return int((time.perf_counter() - started) * 1000)
 
     if not settings.anthropic_api_key:
+        logger.debug("no credential configured; using deterministic engine")
         return build_offline_output(facts), "offline_template", None, [], elapsed()
 
     try:
         output = _parse(_request(facts, precedents, free_text, timeout))
     except Exception:
+        logger.warning(
+            "generation failed for %s/%s; falling back to deterministic engine",
+            facts.venue_id,
+            facts.origin_zone_id,
+            exc_info=True,
+        )
         return build_offline_output(facts), "offline_template", None, [], elapsed()
 
     violations = guard(output, set(facts.allowed_zone_ids))
     if violations:
+        logger.error(
+            "safety guard rejected generated output for %s/%s: %s",
+            facts.venue_id,
+            facts.origin_zone_id,
+            "; ".join(violations),
+        )
         return build_offline_output(facts), "offline_template", None, violations, elapsed()
     return output, "genai", settings.anthropic_model, [], elapsed()

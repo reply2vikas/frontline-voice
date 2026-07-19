@@ -23,9 +23,12 @@ from .config import settings
 from .corpus import load_precedents, load_sops, retrieve
 from .engine import decide
 from .llm import generate
+from .logging_setup import get_logger
 from .schemas import Citation, DecisionResponse, OpsFeedEvent, VolunteerReport
 from .simulator import feed_for, venue_state
 from .venues import VENUES, get_venue
+
+logger = get_logger("api")
 
 SECURITY_HEADERS = {
     "X-Content-Type-Options": "nosniff",
@@ -143,6 +146,14 @@ def decide_endpoint(req: DecideRequest) -> DecisionResponse:
         guard_violations=violations,
     )
     audit.record(response)
+    if facts.escalate:
+        logger.info(
+            "escalation | %s/%s | %s | %s",
+            facts.venue_id,
+            facts.origin_zone_id,
+            facts.sop_id,
+            "; ".join(facts.escalate_reasons),
+        )
     return response
 
 
