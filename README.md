@@ -129,11 +129,14 @@ Ops feed JSON  +  Volunteer 3-tap input (location - issue - crowd mood)
  AUDIT LOG + OPERATIONAL LOG - every decision reconstructable, every degradation explained
 ```
 
-<img width="1680" height="1049" alt="map" src="https://github.com/user-attachments/assets/1271a5c7-0cfb-44af-8d18-2e5043964eb4" />
-
-
 The model can degrade the *wording* of an announcement. It can never change which gate a volunteer sends
 four thousand people toward.
+
+The same resolved state drives the venue map: gates are coloured by live status, welfare and medical points
+are pinned, and selecting a gate carries it back into the volunteer view. A text-equivalent table below the
+map carries identical information for screen-reader users.
+
+![Venue map with gates coloured by live status and a telemetry strip](docs/map.png)
 
 ---
 
@@ -257,9 +260,6 @@ audited with `pip-audit`, and secrets read only from the environment.
 
 ## Accessibility
 
-<img width="1680" height="1050" alt="taps" src="https://github.com/user-attachments/assets/e2bf538f-494c-47a2-914e-da65679b699e" />
-
-
 Targeted at **WCAG 2.1 AAA**, and enforced in CI rather than asserted.
 
 `tests/test_a11y.py` computes contrast ratios directly from `static/app.css` and fails the build below 7:1
@@ -272,6 +272,11 @@ support.
 
 The interface itself is designed for the operating conditions: a volunteer in a crowd cannot type, so the
 input is three taps — location, issue, crowd mood.
+
+![Three-tap input: venue, location, what is happening, and crowd mood](docs/taps.png)
+
+Every control is at least 44px tall, reachable by keyboard, and announced to screen readers. The tab bar
+implements the full ARIA tab pattern with arrow-key navigation.
 
 ---
 
